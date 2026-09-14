@@ -261,6 +261,12 @@ final class NetherNetInterface implements NetworkInterface{
 			case NetherNetIpc::T2M_RECEIPT:
 				($this->sessions[$sessionId] ?? null)?->handleAckReceipt(VarInt::readUnsignedInt($reader));
 				break;
+
+			case NetherNetIpc::T2M_BANDWIDTH_STATS:
+				$bytesSentDiff = VarInt::readUnsignedLong($reader);
+				$bytesReceivedDiff = VarInt::readUnsignedLong($reader);
+				$this->server->getNetwork()->getBandwidthTracker()->add($bytesSentDiff, $bytesReceivedDiff);
+				break;
 		}
 
 		return true;

@@ -54,6 +54,16 @@ final class NetherNetSessionListener implements ServerEventListener{
 	/** @phpstan-var array<int, list<array{int, int}>> */
 	private array $pendingReceipts = [];
 
+	/** @phpstan-var array<int, int> */
+	private array $lastBytesSent = [];
+
+	/** @phpstan-var array<int, int> */
+	private array $lastBytesReceived = [];
+
+	private int $bytesSentDiff = 0;
+
+	private int $bytesReceivedDiff = 0;
+
 	private int $consumedBytes = 0;
 
 	public function __construct(
@@ -65,6 +75,8 @@ final class NetherNetSessionListener implements ServerEventListener{
 		$this->sessions[$id] = $session;
 		$this->queuedBytes[$id] = 0;
 		$this->pendingReceipts[$id] = [];
+		$this->lastBytesSent[$id] = 0;
+		$this->lastBytesReceived[$id] = 0;
 
 		[$address, $port] = self::splitAddress($session->getRemoteAddress());
 		$this->out->write(NetherNetIpc::sessionOpen(
@@ -90,7 +102,7 @@ final class NetherNetSessionListener implements ServerEventListener{
 
 	public function onSessionClose(Session $session, DisconnectReason $reason) : void{
 		$id = $session->getId();
-		unset($this->sessions[$id], $this->queuedBytes[$id], $this->pendingReceipts[$id]);
+		unset($this->sessions[$id], $this->queuedBytes[$id], $this->pendingReceipts[$id], $this->lastBytesSent[$id], $this->lastBytesReceived[$id]);
 
 		$this->out->write(NetherNetIpc::sessionClose($id, $reason->value));
 	}
@@ -141,6 +153,30 @@ final class NetherNetSessionListener implements ServerEventListener{
 			}
 
 			$this->pendingReceipts[$sessionId] = $remaining;
+		}
+	}
+
+	public function updateBandwidthStats() : void{
+		foreach($this->sessions as $sessionId => $session){
+			//closed sessions report zero until the session manager removes them
+			if($session->isClosed()){
+				continue;
+			}
+
+			$bytesSent = $session->getBytesSent();
+			$bytesReceived = $session->getBytesReceived();
+			$this->bytesSentDiff += $bytesSent - $this->lastBytesSent[$sessionId];
+			$this->bytesReceivedDiff += $bytesReceived - $this->lastBytesReceived[$sessionId];
+			$this->lastBytesSent[$sessionId] = $bytesSent;
+			$this->lastBytesReceived[$sessionId] = $bytesReceived;
+		}
+	}
+
+	public function flushBandwidthStats() : void{
+		if($this->bytesSentDiff > 0 || $this->bytesReceivedDiff > 0){
+			$this->out->write(NetherNetIpc::bandwidthStats($this->bytesSentDiff, $this->bytesReceivedDiff));
+			$this->bytesSentDiff = 0;
+			$this->bytesReceivedDiff = 0;
 		}
 	}
 

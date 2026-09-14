@@ -69,6 +69,8 @@ final class NetherNetThread extends Thread{
 
 	protected int $consumedBytes = 0;
 
+	protected int $ticks = 0;
+
 	/**
 	 * @phpstan-param ThreadSafeArray<int, string> $mainToThread
 	 * @phpstan-param ThreadSafeArray<int, string> $threadToMain
@@ -196,6 +198,10 @@ final class NetherNetThread extends Thread{
 
 			$this->handleInbound($in, $listener, $advert, $status);
 			$listener->flushReceipts();
+			$listener->updateBandwidthStats();
+			if(++$this->ticks % self::TPS === 0){
+				$listener->flushBandwidthStats();
+			}
 
 			self::sleepUntilNextTick($start);
 		}

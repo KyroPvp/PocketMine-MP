@@ -35,6 +35,7 @@ final class NetherNetIpc{
 	public const T2M_PACKET = 1;
 	public const T2M_SESSION_CLOSE = 2;
 	public const T2M_RECEIPT = 3;
+	public const T2M_BANDWIDTH_STATS = 4;
 
 	//main to thread
 	public const M2T_SEND = 0;
@@ -88,6 +89,16 @@ final class NetherNetIpc{
 		$out->writeByteArray(chr(self::T2M_RECEIPT));
 		VarInt::writeUnsignedInt($out, $sessionId);
 		VarInt::writeUnsignedInt($out, $receiptId);
+
+		return $out->getData();
+	}
+
+	public static function bandwidthStats(int $bytesSentDiff, int $bytesReceivedDiff) : string{
+		$out = new ByteBufferWriter();
+		$out->writeByteArray(chr(self::T2M_BANDWIDTH_STATS));
+		VarInt::writeUnsignedInt($out, -1); //placeholder session ID for bandwidth stats
+		VarInt::writeUnsignedLong($out, $bytesSentDiff);
+		VarInt::writeUnsignedLong($out, $bytesReceivedDiff);
 
 		return $out->getData();
 	}
