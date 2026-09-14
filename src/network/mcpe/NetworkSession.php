@@ -223,7 +223,8 @@ class NetworkSession{
 		private TypeConverter $typeConverter,
 		private string $ip,
 		private int $port,
-		private ?string $netherNetIdentityKey = null
+		private ?string $netherNetIdentityKey = null,
+		private bool $nethernetConnection = false //TODO: remove this once we fully remove RakNet support
 	){
 		$this->logger = new \PrefixedLogger($this->server->getLogger(), $this->getLogPrefix());
 
@@ -917,12 +918,14 @@ class NetworkSession{
 		if($authRequired){
 			if($clientPubKey === null){
 				$error = "Missing client public key";
-			}elseif($this->netherNetIdentityKey === null){
-				$error = "Missing NetherNet identity key";
-			}else{
-				$loginDigest = hash("sha256", $clientPubKey, binary: true);
-				if(!hash_equals($this->netherNetIdentityKey, $loginDigest)){
-					$error = "Client public key does not match NetherNet identity key";
+			}elseif($this->nethernetConnection){
+				if($this->netherNetIdentityKey === null){
+					$error = "Missing NetherNet identity key";
+				}else{
+					$loginDigest = hash("sha256", $clientPubKey, binary: true);
+					if(!hash_equals($this->netherNetIdentityKey, $loginDigest)){
+						$error = "Client public key does not match NetherNet identity key";
+					}
 				}
 			}
 		}

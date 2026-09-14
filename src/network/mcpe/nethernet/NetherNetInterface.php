@@ -300,7 +300,8 @@ final class NetherNetInterface implements AdvancedNetworkInterface{
 			$this->typeConverter,
 			$address,
 			$port,
-			$publicKeyDigest
+			$publicKeyDigest,
+			true
 		);
 		$this->sessions[$sessionId] = $session;
 
