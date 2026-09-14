@@ -139,7 +139,6 @@ use function cli_set_process_title;
 use function copy;
 use function count;
 use function date;
-use function extension_loaded;
 use function fclose;
 use function file_exists;
 use function file_put_contents;
