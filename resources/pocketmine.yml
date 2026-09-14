@@ -81,6 +81,7 @@ network:
   max-mtu-size: 1492
   #Enable encryption of Minecraft network traffic. This has an impact on performance, but prevents hackers from stealing sessions and pretending to be other players.
   #DO NOT DISABLE THIS unless you understand the risks involved.
+  #DEPRECATED: This setting will be removed in a future version once the RakNet support is removed.
   enable-encryption: true
 
 transport:
