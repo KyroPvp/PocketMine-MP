@@ -32,6 +32,7 @@ use pocketmine\nethernet\crypto\CryptoException;
 use pocketmine\nethernet\discovery\LanSignaling;
 use pocketmine\nethernet\identity\ServerIdentity;
 use pocketmine\nethernet\session\DisconnectReason;
+use pocketmine\network\AdvancedNetworkInterface;
 use pocketmine\network\mcpe\compression\ZlibCompressor;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\EntityEventBroadcaster;
@@ -39,7 +40,7 @@ use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\PacketBroadcaster;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\ServerPongData;
-use pocketmine\network\NetworkInterface;
+use pocketmine\network\Network;
 use pocketmine\network\NetworkInterfaceStartException;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\Server;
@@ -63,7 +64,7 @@ use function umask;
 use function unpack;
 use const PHP_INT_MAX;
 
-final class NetherNetInterface implements NetworkInterface{
+final class NetherNetInterface implements AdvancedNetworkInterface{
 
 	private const TLS_CERT_FILE = "nethernet-cert.pem";
 	private const TLS_KEY_FILE = "nethernet-key.pem";
@@ -85,6 +86,8 @@ final class NetherNetInterface implements NetworkInterface{
 
 	/** @var array<int, NetworkSession> */
 	private array $sessions = [];
+
+	private Network $network;
 
 	/**
 	 * @phpstan-param ThreadSafeArray<int, string>|null $reverseProxyNetworks
@@ -265,11 +268,15 @@ final class NetherNetInterface implements NetworkInterface{
 			case NetherNetIpc::T2M_BANDWIDTH_STATS:
 				$bytesSentDiff = VarInt::readUnsignedLong($reader);
 				$bytesReceivedDiff = VarInt::readUnsignedLong($reader);
-				$this->server->getNetwork()->getBandwidthTracker()->add($bytesSentDiff, $bytesReceivedDiff);
+				$this->network->getBandwidthTracker()->add($bytesSentDiff, $bytesReceivedDiff);
 				break;
 		}
 
 		return true;
+	}
+
+	public function setNetwork(Network $network) : void{
+		$this->network = $network;
 	}
 
 	private static function disconnectReason(?DisconnectReason $reason) : Translatable|string{
@@ -357,5 +364,21 @@ final class NetherNetInterface implements NetworkInterface{
 	public function shutdown() : void{
 		$this->server->getTickSleeper()->removeNotifier($this->sleeperNotifierId);
 		$this->thread->quit();
+	}
+
+	public function blockAddress(string $address, int $timeout = 300) : void{
+		$this->toThread->write(NetherNetIpc::blockAddress($address, $timeout));
+	}
+
+	public function unblockAddress(string $address) : void{
+		$this->toThread->write(NetherNetIpc::unblockAddress($address));
+	}
+
+	public function sendRawPacket(string $address, int $port, string $payload) : void{
+		//NOOP - NetherNet does not support this feature
+	}
+
+	public function addRawPacketFilter(string $regex) : void{
+		//NOOP - NetherNet does not support this feature
 	}
 }

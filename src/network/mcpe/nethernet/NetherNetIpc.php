@@ -41,6 +41,8 @@ final class NetherNetIpc{
 	public const M2T_SEND = 0;
 	public const M2T_CLOSE_SESSION = 1;
 	public const M2T_SET_SERVER_DATA = 2;
+	public const M2T_BLOCK_ADDRESS = 3;
+	public const M2T_UNBLOCK_ADDRESS = 4;
 
 	private function __construct(){
 		//NOOP
@@ -118,6 +120,25 @@ final class NetherNetIpc{
 		$out = new ByteBufferWriter();
 		$out->writeByteArray(chr(self::M2T_CLOSE_SESSION));
 		VarInt::writeUnsignedInt($out, $sessionId);
+
+		return $out->getData();
+	}
+
+	public static function blockAddress(string $address, int $timeout) : string{
+		$out = new ByteBufferWriter();
+		$out->writeByteArray(chr(self::M2T_BLOCK_ADDRESS));
+		VarInt::writeUnsignedInt($out, strlen($address));
+		$out->writeByteArray($address);
+		VarInt::writeSignedInt($out, $timeout);
+
+		return $out->getData();
+	}
+
+	public static function unblockAddress(string $address) : string{
+		$out = new ByteBufferWriter();
+		$out->writeByteArray(chr(self::M2T_UNBLOCK_ADDRESS));
+		VarInt::writeUnsignedInt($out, strlen($address));
+		$out->writeByteArray($address);
 
 		return $out->getData();
 	}

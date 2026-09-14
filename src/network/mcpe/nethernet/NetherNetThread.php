@@ -196,7 +196,7 @@ final class NetherNetThread extends Thread{
 			$listener->setConsumedBytes($this->consumedBytes);
 			$server->tick();
 
-			$this->handleInbound($in, $listener, $advert, $status);
+			$this->handleInbound($in, $server, $listener, $advert, $status);
 			$listener->flushReceipts();
 			$listener->updateBandwidthStats();
 			if(++$this->ticks % self::TPS === 0){
@@ -205,7 +205,7 @@ final class NetherNetThread extends Thread{
 
 			self::sleepUntilNextTick($start);
 		}
-		$this->handleInbound($in, $listener, $advert, $status);
+		$this->handleInbound($in, $server, $listener, $advert, $status);
 
 		$deadline = microtime(true) + self::SHUTDOWN_DRAIN_TIMEOUT;
 		while($server->getSessionManager()->count() > 0 && microtime(true) < $deadline){
@@ -282,7 +282,7 @@ final class NetherNetThread extends Thread{
 		}
 	}
 
-	private function handleInbound(NetherNetChannel $in, NetherNetSessionListener $listener, MutableServerDataProvider $advert, MutableServerStatusProvider $status) : void{
+	private function handleInbound(NetherNetChannel $in, NetherNetServer $server, NetherNetSessionListener $listener, MutableServerDataProvider $advert, MutableServerStatusProvider $status) : void{
 		while(($message = $in->read()) !== null){
 			$reader = new ByteBufferReader($message);
 			$type = ord($reader->readByteArray(1));
@@ -294,6 +294,19 @@ final class NetherNetThread extends Thread{
 					$advert->setServerData($data);
 				}
 				$status->setPongData($pong);
+				continue;
+			}
+
+			if($type === NetherNetIpc::M2T_BLOCK_ADDRESS){
+				$address = $reader->readByteArray(VarInt::readUnsignedInt($reader));
+				$timeout = VarInt::readSignedInt($reader);
+				$server->blockAddress($address, $timeout);
+				continue;
+			}
+
+			if($type === NetherNetIpc::M2T_UNBLOCK_ADDRESS){
+				$address = $reader->readByteArray(VarInt::readUnsignedInt($reader));
+				$server->unblockAddress($address);
 				continue;
 			}
 
