@@ -28,6 +28,7 @@ use pmmp\encoding\ByteBufferWriter;
 use pmmp\encoding\DataDecodeException;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\event\player\PlayerDuplicateLoginEvent;
+use pocketmine\event\player\PlayerIdentityVerifyEvent;
 use pocketmine\event\player\PlayerResourcePackOfferEvent;
 use pocketmine\event\server\DataPacketDecodeEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -103,6 +104,8 @@ use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
 use pocketmine\network\mcpe\protocol\UpdateAdventureSettingsPacket;
 use pocketmine\network\NetworkSessionManager;
 use pocketmine\network\PacketHandlingException;
+use pocketmine\network\TransportIdentityException;
+use pocketmine\network\TransportIdentityKey;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\GameMode;
@@ -128,8 +131,6 @@ use function base64_encode;
 use function bin2hex;
 use function count;
 use function get_class;
-use function hash;
-use function hash_equals;
 use function implode;
 use function in_array;
 use function is_string;
@@ -223,8 +224,7 @@ class NetworkSession{
 		private TypeConverter $typeConverter,
 		private string $ip,
 		private int $port,
-		private ?string $netherNetIdentityKey = null,
-		private bool $nethernetConnection = false //TODO: remove this once we fully remove RakNet support
+		private ?TransportIdentityKey $transportIdentityKey = null
 	){
 		$this->logger = new \PrefixedLogger($this->server->getLogger(), $this->getLogPrefix());
 
@@ -912,20 +912,11 @@ class NetworkSession{
 				$error = "Expected XUID but none found";
 			}elseif($clientPubKey === null){
 				$error = "Missing client public key"; //failsafe
-			}
-		}
-
-		if($authRequired){
-			if($clientPubKey === null){
-				$error = "Missing client public key";
-			}elseif($this->nethernetConnection){
-				if($this->netherNetIdentityKey === null){
-					$error = "Missing NetherNet identity key";
-				}else{
-					$loginDigest = hash("sha256", $clientPubKey, binary: true);
-					if(!hash_equals($this->netherNetIdentityKey, $loginDigest)){
-						$error = "Client public key does not match NetherNet identity key";
-					}
+			}elseif($authRequired && $this->transportIdentityKey !== null){
+				try{
+					$this->transportIdentityKey->verify($clientPubKey);
+				}catch(TransportIdentityException $e){
+					$error = $e->getMessage();
 				}
 			}
 		}
@@ -937,6 +928,9 @@ class NetworkSession{
 			);
 
 			return;
+		}
+		if($clientPubKey === null){
+			throw new AssumptionFailedError("Client public key should have been checked above");
 		}
 
 		$this->authenticated = $authenticated;
@@ -952,6 +946,22 @@ class NetworkSession{
 			}
 		}
 		$this->logger->debug("Xbox Live authenticated: " . ($this->authenticated ? "YES" : "NO"));
+
+		$ev = new PlayerIdentityVerifyEvent(
+			$this,
+			$this->info ?? throw new AssumptionFailedError("Player info is set before login verification starts"),
+			$this->authenticated,
+			$authRequired,
+			$clientPubKey,
+			$this->transportIdentityKey,
+			"Plugin reason",
+			KnownTranslationFactory::pocketmine_disconnect_error_authentication()
+		);
+		$ev->call();
+		if($ev->isCancelled()){
+			$this->disconnect($ev->getDisconnectReason(), $ev->getDisconnectScreenMessage());
+			return;
+		}
 
 		$checkXUID = $this->server->getConfigGroup()->getPropertyBool(YmlServerProperties::PLAYER_VERIFY_XUID, true);
 		$myXUID = $this->info instanceof XboxLivePlayerInfo ? $this->info->getXuid() : "";
@@ -1000,7 +1010,7 @@ class NetworkSession{
 			}
 		}
 
-		if(EncryptionContext::$ENABLED && $this->netherNetIdentityKey === null){ //NetherNet has their own encryption in their transport level
+		if(EncryptionContext::$ENABLED && $this->transportIdentityKey === null){
 			$this->server->getAsyncPool()->submitTask(new PrepareEncryptionTask($clientPubKey, function(string $encryptionKey, string $handshakeJwt) : void{
 				if(!$this->connected){
 					return;
