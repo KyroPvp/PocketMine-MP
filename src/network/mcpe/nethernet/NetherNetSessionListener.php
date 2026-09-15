@@ -60,6 +60,9 @@ final class NetherNetSessionListener implements ServerEventListener{
 	/** @phpstan-var array<int, int> */
 	private array $lastBytesReceived = [];
 
+	/** @phpstan-var array<int, int> */
+	private array $lastPing = [];
+
 	private int $bytesSentDiff = 0;
 
 	private int $bytesReceivedDiff = 0;
@@ -102,7 +105,7 @@ final class NetherNetSessionListener implements ServerEventListener{
 
 	public function onSessionClose(Session $session, DisconnectReason $reason) : void{
 		$id = $session->getId();
-		unset($this->sessions[$id], $this->queuedBytes[$id], $this->pendingReceipts[$id], $this->lastBytesSent[$id], $this->lastBytesReceived[$id]);
+		unset($this->sessions[$id], $this->queuedBytes[$id], $this->pendingReceipts[$id], $this->lastBytesSent[$id], $this->lastBytesReceived[$id], $this->lastPing[$id]);
 
 		$this->out->write(NetherNetIpc::sessionClose($id, $reason->value));
 	}
@@ -177,6 +180,25 @@ final class NetherNetSessionListener implements ServerEventListener{
 			$this->out->write(NetherNetIpc::bandwidthStats($this->bytesSentDiff, $this->bytesReceivedDiff));
 			$this->bytesSentDiff = 0;
 			$this->bytesReceivedDiff = 0;
+		}
+	}
+
+	/**
+	 * Reports the SCTP smoothed round trip time of each session to the main thread as its ping.
+	 */
+	public function flushPings() : void{
+		foreach($this->sessions as $sessionId => $session){
+			if($session->isClosed()){
+				continue;
+			}
+
+			$ping = $session->getRoundTripTime();
+			if($ping === null || $ping === ($this->lastPing[$sessionId] ?? null)){
+				continue;
+			}
+
+			$this->lastPing[$sessionId] = $ping;
+			$this->out->write(NetherNetIpc::ping($sessionId, $ping));
 		}
 	}
 

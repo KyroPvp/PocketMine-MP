@@ -271,6 +271,10 @@ final class NetherNetInterface implements AdvancedNetworkInterface{
 				$bytesReceivedDiff = VarInt::readUnsignedLong($reader);
 				$this->network->getBandwidthTracker()->add($bytesSentDiff, $bytesReceivedDiff);
 				break;
+
+			case NetherNetIpc::T2M_PING:
+				($this->sessions[$sessionId] ?? null)?->updatePing(VarInt::readUnsignedInt($reader));
+				break;
 		}
 
 		return true;

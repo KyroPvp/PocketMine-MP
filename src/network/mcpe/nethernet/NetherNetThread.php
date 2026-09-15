@@ -201,6 +201,7 @@ final class NetherNetThread extends Thread{
 			$listener->updateBandwidthStats();
 			if(++$this->ticks % self::TPS === 0){
 				$listener->flushBandwidthStats();
+				$listener->flushPings();
 			}
 
 			self::sleepUntilNextTick($start);

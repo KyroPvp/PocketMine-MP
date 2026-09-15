@@ -36,6 +36,7 @@ final class NetherNetIpc{
 	public const T2M_SESSION_CLOSE = 2;
 	public const T2M_RECEIPT = 3;
 	public const T2M_BANDWIDTH_STATS = 4;
+	public const T2M_PING = 5;
 
 	//main to thread
 	public const M2T_SEND = 0;
@@ -101,6 +102,15 @@ final class NetherNetIpc{
 		VarInt::writeUnsignedInt($out, -1); //placeholder session ID for bandwidth stats
 		VarInt::writeUnsignedLong($out, $bytesSentDiff);
 		VarInt::writeUnsignedLong($out, $bytesReceivedDiff);
+
+		return $out->getData();
+	}
+
+	public static function ping(int $sessionId, int $pingMS) : string{
+		$out = new ByteBufferWriter();
+		$out->writeByteArray(chr(self::T2M_PING));
+		VarInt::writeUnsignedInt($out, $sessionId);
+		VarInt::writeUnsignedInt($out, $pingMS);
 
 		return $out->getData();
 	}
