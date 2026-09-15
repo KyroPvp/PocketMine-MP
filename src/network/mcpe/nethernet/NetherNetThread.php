@@ -37,6 +37,7 @@ use pocketmine\nethernet\identity\ServerIdentity;
 use pocketmine\nethernet\negotiation\ConfiguredPeerConnectionFactory;
 use pocketmine\nethernet\NetherNetException;
 use pocketmine\nethernet\NetherNetServer;
+use pocketmine\nethernet\SctpConfiguration;
 use pocketmine\nethernet\ServerConfiguration;
 use pocketmine\nethernet\signaling\http\HttpSignaling;
 use pocketmine\nethernet\signaling\http\MutableServerStatusProvider;
@@ -62,6 +63,16 @@ final class NetherNetThread extends Thread{
 	private const TIME_PER_TICK = 1 / self::TPS;
 
 	private const SHUTDOWN_DRAIN_TIMEOUT = 3.0;
+
+	/**
+	 * Interval in milliseconds between SCTP heartbeats.
+	 */
+	private const SCTP_HEARTBEAT_INTERVAL = 750;
+	/**
+	 * Maximum number of retransmit attempts for SCTP
+	 * Clients will be disconnected after this threshold is reached.
+	 */
+	private const SCTP_MAX_RETRANSMIT_ATTEMPTS = 4;
 
 	protected bool $ready = false;
 
@@ -243,7 +254,11 @@ final class NetherNetThread extends Thread{
 					iceUdpMuxEnabled: $this->iceConfig->isUdpMux(),
 					mtu: $this->maxMtu
 				),
-				logger: $this->logger
+				logger: $this->logger,
+				sctp: new SctpConfiguration(
+					heartbeatInterval: self::SCTP_HEARTBEAT_INTERVAL,
+					maxRetransmitAttempts: self::SCTP_MAX_RETRANSMIT_ATTEMPTS
+				)
 			),
 			$listener
 		);
