@@ -75,6 +75,8 @@ network:
   #Due to large overhead of AsyncTask, async compression isn't worth it except for large packets
   async-compression-threshold: 10000
   #Experimental. Use UPnP to automatically port forward
+  #DEPRECATED: This only forwards the RakNet port and will be removed once RakNet support is removed.
+  #NetherNet handles NAT traversal via STUN/TURN relays (transport.nethernet.ice-servers) and supports reverse proxies or tunnels for signaling.
   upnp-forwarding: false
   #Maximum size in bytes of packets sent over the network (default 1492 bytes). Packets larger than this will be
   #fragmented or split into smaller parts. Clients can request MTU sizes up to but not more than this number.

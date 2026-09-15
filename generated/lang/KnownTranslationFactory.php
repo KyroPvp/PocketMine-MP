@@ -2949,6 +2949,10 @@ final class KnownTranslationFactory{
 		]);
 	}
 
+	public static function pocketmine_server_upnp_deprecated() : Translatable{
+		return new Translatable(KnownTranslationKeys::POCKETMINE_SERVER_UPNP_DEPRECATED, []);
+	}
+
 	public static function pocketmine_server_url_bugReporting(Translatable|string $bugReportingUrl) : Translatable{
 		return new Translatable(KnownTranslationKeys::POCKETMINE_SERVER_URL_BUGREPORTING, [
 			"bugReportingUrl" => $bugReportingUrl,

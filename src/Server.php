@@ -1310,6 +1310,7 @@ class Server{
 		}
 
 		if($this->configGroup->getPropertyBool(Yml::NETWORK_UPNP_FORWARDING, false)){
+			$this->logger->warning($this->language->translate(KnownTranslationFactory::pocketmine_server_upnp_deprecated()));
 			$this->network->registerInterface(new UPnPNetworkInterface($this->logger, Internet::getInternalIP(), $this->getPort()));
 		}
 
