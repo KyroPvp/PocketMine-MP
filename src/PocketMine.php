@@ -165,7 +165,7 @@ namespace pocketmine {
 
 		if(($webrtc_version = phpversion("webrtc")) !== false){
 			if(version_compare($webrtc_version, "0.3.0") < 0 || version_compare($webrtc_version, "0.4.0") >= 0){
-				$messages[] = "axolotl-pm/ext-webrtc ^0.2.0 is required, while you have $webrtc_version.";
+				$messages[] = "axolotl-pm/ext-webrtc ^0.3.0 is required, while you have $webrtc_version.";
 			}
 		}
 
