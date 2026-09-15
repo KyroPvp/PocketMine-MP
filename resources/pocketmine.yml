@@ -85,8 +85,8 @@ network:
   enable-encryption: true
 
 transport:
-  #Network transport(s) used for player connections.
-  #Options: raknet, nethernet, or both. Accepts a comma-separated list (e.g. raknet,nethernet)
+  #Network transport(s) used for player connections. Accepts a comma-separated list (e.g. raknet,nethernet).
+  #Built-in options: raknet, nethernet. Plugins may register additional transports.
   name: nethernet
   #Settings for the NetherNet (WebRTC) transport.
   #Applies only if nethernet is enabled above.
@@ -100,8 +100,8 @@ transport:
     #Setting this to true will make connections share one UDP socket, so a single forwarded
     #port handles all of them.
     #Useful when you have only a few ports available.
-    #The shared socket only gets a fixed port if port-range below names a single port. Without
-    #one, the operating system picks a different port every time the server starts.
+    #The shared socket only uses a fixed port if port-range specifies a single port. Otherwise,
+    #the operating system assigns an arbitrary port each time the server starts.
     #NOTE: TURN servers cannot be used with this setting.
     ice-udp-mux: false
 
@@ -110,9 +110,9 @@ transport:
     port-range:
 
     #ICE servers to enable STUN/TURN relay.
-    #This is an advanced option. Do not modify unless you know what you're doing.
-    #Every server listed here has to be contacted before a join can be answered, so each one
-    #delays every connection, and an unreachable one holds joins up until gathering times out.
+    #This is an advanced option. Do not modify unless you know what you are doing.
+    #Every listed server must be contacted before a connection can be established; unreachable
+    #servers will delay player connections until candidate gathering times out.
     ice-servers:
       #You can specify a list of STUN/TURN ICE servers here.
       #port may be omitted, in which case 3478 is used.
@@ -131,8 +131,10 @@ transport:
     #Without this, features requiring the client's real IP (such as TURN relays) will fail.
     reverse-proxy:
       enabled: false
-      #Addresses of proxies whose headers are trusted. Spoofed headers from unlisted IPs are ignored.
-      #Leave empty to trust all connections. Only safe if the signaling port is blocked from the outside.
+      #IP addresses or CIDR blocks of reverse proxies whose forwarded headers are trusted.
+      #Headers from unlisted addresses are ignored to prevent IP address spoofing.
+      #Leave empty to trust headers from any connecting address. This is only safe if
+      #the signaling port is blocked from direct public access.
       #CIDR notation is supported.
       trusted-ips:
       #Example:

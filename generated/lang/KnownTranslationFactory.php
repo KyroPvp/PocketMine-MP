@@ -2855,12 +2855,6 @@ final class KnownTranslationFactory{
 		]);
 	}
 
-	public static function pocketmine_server_nethernet_invalidSettings(Translatable|string $param0) : Translatable{
-		return new Translatable(KnownTranslationKeys::POCKETMINE_SERVER_NETHERNET_INVALIDSETTINGS, [
-			0 => $param0,
-		]);
-	}
-
 	public static function pocketmine_server_nethernet_signalingStart(Translatable|string $param0, Translatable|string $param1, Translatable|string $param2) : Translatable{
 		return new Translatable(KnownTranslationKeys::POCKETMINE_SERVER_NETHERNET_SIGNALINGSTART, [
 			0 => $param0,

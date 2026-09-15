@@ -57,15 +57,11 @@ use pocketmine\network\mcpe\compression\Compressor;
 use pocketmine\network\mcpe\compression\ZlibCompressor;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\encryption\EncryptionContext;
-use pocketmine\network\mcpe\EntityEventBroadcaster;
-use pocketmine\network\mcpe\nethernet\NetherNetIceConfiguration;
-use pocketmine\network\mcpe\nethernet\NetherNetInterface;
-use pocketmine\network\mcpe\nethernet\NetherNetThread;
+use pocketmine\network\mcpe\nethernet\NetherNetTransport;
 use pocketmine\network\mcpe\NetworkSession;
-use pocketmine\network\mcpe\PacketBroadcaster;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\CompressionAlgorithm;
-use pocketmine\network\mcpe\raklib\RakLibInterface;
+use pocketmine\network\mcpe\raklib\RakLibTransport;
 use pocketmine\network\mcpe\StandardEntityEventBroadcaster;
 use pocketmine\network\mcpe\StandardPacketBroadcaster;
 use pocketmine\network\Network;
@@ -73,7 +69,6 @@ use pocketmine\network\NetworkInterfaceStartException;
 use pocketmine\network\query\DedicatedQueryNetworkInterface;
 use pocketmine\network\query\QueryHandler;
 use pocketmine\network\query\QueryInfo;
-use pocketmine\network\Transport;
 use pocketmine\network\upnp\UPnPNetworkInterface;
 use pocketmine\permission\BanList;
 use pocketmine\permission\DefaultPermissions;
@@ -139,6 +134,7 @@ use function cli_set_process_title;
 use function copy;
 use function count;
 use function date;
+use function explode;
 use function fclose;
 use function file_exists;
 use function file_put_contents;
@@ -146,7 +142,6 @@ use function filemtime;
 use function fopen;
 use function get_class;
 use function gettype;
-use function in_array;
 use function ini_set;
 use function is_array;
 use function is_dir;
@@ -198,6 +193,11 @@ class Server{
 	public const DEFAULT_PORT_IPV4 = 19132;
 	public const DEFAULT_PORT_IPV6 = 19133;
 	public const DEFAULT_MAX_VIEW_DISTANCE = 16;
+
+	/**
+	 * Upper bound on the number of transports read from transport.name in pocketmine.yml.
+	 */
+	private const MAX_ACTIVE_TRANSPORTS = 8;
 
 	/**
 	 * Worlds, network, commands and most other things are polled this many times per second on average.
@@ -1005,6 +1005,8 @@ class Server{
 
 			$this->network = new Network($this->logger);
 			$this->network->setName($this->getMotd());
+			$this->network->registerTransport(RakLibTransport::NAME, new RakLibTransport($this));
+			$this->network->registerTransport(NetherNetTransport::NAME, new NetherNetTransport($this));
 
 			$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_info(
 				$this->getName(),
@@ -1258,120 +1260,48 @@ class Server{
 		return !$anyWorldFailedToLoad;
 	}
 
-	private function startupPrepareRakNetInterface(
-		string $ip,
-		int $port,
-		bool $ipV6,
-		bool $useQuery,
-		bool $useRakLib,
-		PacketBroadcaster $packetBroadcaster,
-		EntityEventBroadcaster $entityEventBroadcaster,
-		TypeConverter $typeConverter
-	) : bool{
+	/**
+	 * Registers a dedicated Query listener on the given address unless already handled by RakLib.
+	 */
+	private function startupPrepareQueryInterface(string $ip, int $port, bool $ipV6) : void{
+		if(!RakLibTransport::isListeningOn($this->network, $ip, $port, $ipV6)){
+			$this->network->registerInterface(new DedicatedQueryNetworkInterface($ip, $port, $ipV6, new \PrefixedLogger($this->logger, "Dedicated Query Interface")));
+		}
 		$prettyIp = $ipV6 ? "[$ip]" : $ip;
-		$rakLibRegistered = false;
-		if($useRakLib){
-			try{
-				$rakLibRegistered = $this->network->registerInterface(new RakLibInterface($this, $ip, $port, $ipV6, $packetBroadcaster, $entityEventBroadcaster, $typeConverter));
-			}catch(NetworkInterfaceStartException $e){
-				$this->logger->emergency($this->language->translate(KnownTranslationFactory::pocketmine_server_networkStartFailed(
-					$ip,
-					(string) $port,
-					$e->getMessage()
-				)));
-				return false;
-			}
-			$this->getLogger()->warning($this->language->translate(KnownTranslationFactory::pocketmine_server_raknet_deprecated()));
-		}
-		if($rakLibRegistered){
-			$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_networkStart($prettyIp, (string) $port)));
-		}
-		if($useQuery){
-			if(!$rakLibRegistered){
-				//RakLib would normally handle the transport for Query packets
-				//if it's not registered we need to make sure Query still works
-				$this->network->registerInterface(new DedicatedQueryNetworkInterface($ip, $port, $ipV6, new \PrefixedLogger($this->logger, "Dedicated Query Interface")));
-			}
-			$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_query_running($prettyIp, (string) $port)));
-		}
-		return true;
-	}
-
-	private function startupPrepareNetherNetInterface(
-		PacketBroadcaster $packetBroadcaster,
-		EntityEventBroadcaster $entityEventBroadcaster,
-		TypeConverter $typeConverter
-	) : bool{
-		$ip = $this->getIp();
-		$port = $this->getPort();
-		$keyFile = $this->configGroup->getPropertyString(Yml::TRANSPORT_NETHERNET_KEY_FILE, "nethernet.key");
-		try{
-			$iceConfig = NetherNetIceConfiguration::parse(
-				$this->configGroup->getProperty(Yml::TRANSPORT_NETHERNET_ICE_SERVERS),
-				$this->configGroup->getProperty(Yml::TRANSPORT_NETHERNET_PORT_RANGE),
-				$this->configGroup->getPropertyBool(Yml::TRANSPORT_NETHERNET_ICE_UDP_MUX, false)
-			);
-			$reverseProxyNetworks = $this->configGroup->getPropertyBool(Yml::TRANSPORT_NETHERNET_REVERSE_PROXY_ENABLED, false)
-				? NetherNetThread::parseReverseProxyNetworks($this->configGroup->getProperty(Yml::TRANSPORT_NETHERNET_REVERSE_PROXY_TRUSTED_IPS))
-				: null;
-		}catch(\InvalidArgumentException $e){
-			$this->logger->emergency($this->language->translate(KnownTranslationFactory::pocketmine_server_nethernet_invalidSettings($e->getMessage())));
-			return false;
-		}
-		if($iceConfig->isUdpMux() && $iceConfig->getPortRangeBegin() === null){
-			//without a range the shared socket lands on whatever port the OS hands out, which defeats the point of muxing
-			$this->logger->warning($this->language->translate(KnownTranslationFactory::pocketmine_server_nethernet_udpMuxWithoutPortRange(Yml::TRANSPORT_NETHERNET_ICE_UDP_MUX)));
-		}
-
-		try{
-			$this->network->registerInterface(new NetherNetInterface($this, $ip, $port, $keyFile, $iceConfig, $reverseProxyNetworks, $packetBroadcaster, $entityEventBroadcaster, $typeConverter));
-		}catch(NetworkInterfaceStartException $e){
-			$this->logger->emergency($this->language->translate(KnownTranslationFactory::pocketmine_server_networkStartFailed(
-				$ip,
-				(string) $port,
-				$e->getMessage()
-			)));
-			return false;
-		}
-		$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_nethernet_signalingStart($ip, (string) $port, "TCP")));
-
-		return true;
+		$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_query_running($prettyIp, (string) $port)));
 	}
 
 	private function startupPrepareNetworkInterfaces() : bool{
-		$useQuery = $this->configGroup->getConfigBool(ServerProperties::ENABLE_QUERY, true);
-
-		[$transports, $unknownTransports] = Transport::parseList(
-			$this->configGroup->getPropertyString(Yml::TRANSPORT_NAME, Transport::RAKNET->value)
-		);
-		foreach($unknownTransports as $name){
-			$this->logger->warning($this->language->translate(KnownTranslationFactory::pocketmine_server_transport_unknown($name)));
+		foreach(explode(",", $this->configGroup->getPropertyString(Yml::TRANSPORT_NAME, RakLibTransport::NAME), limit: self::MAX_ACTIVE_TRANSPORTS) as $name){
+			$name = strtolower(trim($name));
+			if($name === ""){
+				continue;
+			}
+			if($this->network->getTransport($name) === null){
+				$this->logger->warning($this->language->translate(KnownTranslationFactory::pocketmine_server_transport_unknown($name)));
+				continue;
+			}
+			$this->network->activateTransport($name);
 		}
-		if(count($transports) === 0){
+		if(count($this->network->getActiveTransports()) === 0){
 			$this->logger->emergency($this->language->translate(KnownTranslationFactory::pocketmine_server_transport_noneConfigured()));
 			return false;
 		}
 
 		$typeConverter = TypeConverter::getInstance();
 		$packetBroadcaster = new StandardPacketBroadcaster($this);
-		$entityEventBroadcaster = new StandardEntityEventBroadcaster($packetBroadcaster, $typeConverter);
-
-		$useRakLib = in_array(Transport::RAKNET, $transports, true);
-		if(
-			!$this->startupPrepareRakNetInterface($this->getIp(), $this->getPort(), false, $useQuery, $useRakLib, $packetBroadcaster, $entityEventBroadcaster, $typeConverter) ||
-			(
-				$this->configGroup->getConfigBool(ServerProperties::ENABLE_IPV6, true) &&
-				!$this->startupPrepareRakNetInterface($this->getIpV6(), $this->getPortV6(), true, $useQuery, $useRakLib, $packetBroadcaster, $entityEventBroadcaster, $typeConverter)
-			)
-		){
+		try{
+			$this->network->startActiveTransports($packetBroadcaster, new StandardEntityEventBroadcaster($packetBroadcaster, $typeConverter), $typeConverter);
+		}catch(NetworkInterfaceStartException $e){
+			$this->logger->emergency($e->getMessage());
 			return false;
 		}
 
-		if(in_array(Transport::NETHERNET, $transports, true) && !$this->startupPrepareNetherNetInterface($packetBroadcaster, $entityEventBroadcaster, $typeConverter)){
-			return false;
-		}
-
-		if($useQuery){
+		if($this->configGroup->getConfigBool(ServerProperties::ENABLE_QUERY, true)){
+			$this->startupPrepareQueryInterface($this->getIp(), $this->getPort(), false);
+			if($this->configGroup->getConfigBool(ServerProperties::ENABLE_IPV6, true)){
+				$this->startupPrepareQueryInterface($this->getIpV6(), $this->getPortV6(), true);
+			}
 			$this->network->registerRawPacketHandler(new QueryHandler($this));
 		}
 

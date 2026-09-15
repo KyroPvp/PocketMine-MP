@@ -23,49 +23,26 @@ declare(strict_types=1);
 
 namespace pocketmine\network;
 
-use function array_values;
-use function explode;
-use function strtolower;
-use function trim;
+use pocketmine\network\mcpe\convert\TypeConverter;
+use pocketmine\network\mcpe\EntityEventBroadcaster;
+use pocketmine\network\mcpe\PacketBroadcaster;
 
-enum Transport : string{
-
-	private const MAX_LISTED = 8;
-
-	case RAKNET = "raknet";
-	case NETHERNET = "nethernet";
+/**
+ * Represents a network transport (e.g. RakNet, NetherNet) that provides network interfaces for player connections.
+ */
+interface Transport{
 
 	/**
-	 * Parses a comma-separated list of transport names.
+	 * Creates and returns the network interfaces for this transport.
 	 *
-	 * @phpstan-return array{list<self>, list<string>} Returns [valid transports, unknown transport names]
+	 * Broadcasters must be passed to each created NetworkSession so packets can be broadcast across all transports.
+	 *
+	 * @return NetworkInterface[]
+	 * @throws NetworkInterfaceStartException
 	 */
-	public static function parseList(string $value) : array{
-		$transports = [];
-		$unknown = [];
-
-		foreach(explode(",", $value, self::MAX_LISTED) as $name){
-			$name = strtolower(trim($name));
-			if($name === ""){
-				continue;
-			}
-
-			//"both" is an alias to enable all supported transports
-			if($name === "both"){
-				foreach(self::cases() as $case){
-					$transports[$case->value] = $case;
-				}
-				continue;
-			}
-
-			$transport = self::tryFrom($name);
-			if($transport === null){
-				$unknown[] = $name;
-			}else{
-				$transports[$transport->value] = $transport;
-			}
-		}
-
-		return [array_values($transports), $unknown];
-	}
+	public function createInterfaces(
+		PacketBroadcaster $packetBroadcaster,
+		EntityEventBroadcaster $entityEventBroadcaster,
+		TypeConverter $typeConverter
+	) : array;
 }

@@ -96,8 +96,8 @@ final class NetherNetInterface implements AdvancedNetworkInterface{
 	 */
 	public function __construct(
 		private Server $server,
-		string $ip,
-		int $port,
+		private string $ip,
+		private int $port,
 		private string $identityKeyFile,
 		NetherNetIceConfiguration $iceConfig,
 		?ThreadSafeArray $reverseProxyNetworks,
@@ -160,6 +160,7 @@ final class NetherNetInterface implements AdvancedNetworkInterface{
 		$this->server->getLogger()->debug("Waiting for NetherNet to start...");
 		$this->thread->startAndWait();
 		$this->server->getLogger()->debug("NetherNet booted successfully");
+		$this->server->getLogger()->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_server_nethernet_signalingStart($this->ip, (string) $this->port, "TCP")));
 	}
 
 	/**

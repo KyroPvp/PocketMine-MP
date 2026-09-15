@@ -71,6 +71,7 @@ class RakLibInterface implements ServerEventListener, AdvancedNetworkInterface{
 	private Network $network;
 
 	private int $rakServerId;
+	private InternetAddress $bindAddress;
 	private RakLibServer $rakLib;
 
 	/** @var NetworkSession[] */
@@ -100,6 +101,7 @@ class RakLibInterface implements ServerEventListener, AdvancedNetworkInterface{
 		$this->typeConverter = $typeConverter;
 
 		$this->rakServerId = mt_rand(0, PHP_INT_MAX);
+		$this->bindAddress = new InternetAddress($ip, $port, $ipV6 ? 6 : 4);
 
 		$sleeperEntry = $this->server->getTickSleeper()->addNotifier(function() : void{
 			Timings::$connection->startTiming();
@@ -120,7 +122,7 @@ class RakLibInterface implements ServerEventListener, AdvancedNetworkInterface{
 			$this->server->getLogger(),
 			$mainToThreadBuffer,
 			$threadToMainBuffer,
-			new InternetAddress($ip, $port, $ipV6 ? 6 : 4),
+			$this->bindAddress,
 			$this->rakServerId,
 			$this->server->getConfigGroup()->getPropertyInt(YmlServerProperties::NETWORK_MAX_MTU_SIZE, 1492),
 			self::MCPE_RAKNET_PROTOCOL_VERSION,
@@ -142,10 +144,18 @@ class RakLibInterface implements ServerEventListener, AdvancedNetworkInterface{
 			throw new NetworkInterfaceStartException($e->getMessage(), 0, $e);
 		}
 		$this->server->getLogger()->debug("RakLib booted successfully");
+
+		$ip = $this->bindAddress->getIp();
+		$prettyIp = $this->bindAddress->getVersion() === 6 ? "[$ip]" : $ip;
+		$this->server->getLogger()->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_server_networkStart($prettyIp, (string) $this->bindAddress->getPort())));
 	}
 
 	public function setNetwork(Network $network) : void{
 		$this->network = $network;
+	}
+
+	public function getBindAddress() : InternetAddress{
+		return $this->bindAddress;
 	}
 
 	public function tick() : void{
