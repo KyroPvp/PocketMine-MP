@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use Closure;
+use GlobalLogger;
 use pocketmine\block\BlockBreakInfo as BreakInfo;
 use pocketmine\block\BlockIdentifier as BID;
 use pocketmine\block\BlockToolType as ToolType;
@@ -71,6 +73,7 @@ use pocketmine\item\VanillaItems;
 use pocketmine\math\Facing;
 use pocketmine\utils\RegistrySource;
 use pocketmine\world\generator\object\TreeType;
+use ReflectionClass;
 use function is_int;
 use function mb_strtolower;
 use function mb_strtoupper;
@@ -112,12 +115,12 @@ final class VanillaBlocksInputs extends RegistrySource
 		//this sketchy hack allows us to avoid manually writing the constants inline
 		//since type IDs are generated from this class anyway, I'm OK with this hack
 		//nonetheless, we should try to get rid of it in a future major version (e.g by using string type IDs)
-		$reflect = new \ReflectionClass(BlockTypeIds::class);
+		$reflect = new ReflectionClass(BlockTypeIds::class);
 		$typeId = $reflect->getConstant(mb_strtoupper($name));
 		if (!is_int($typeId)) {
 			//this allows registering new stuff without adding new type ID constants
 			//this reduces the number of mandatory steps to test new features in local development
-			\GlobalLogger::get()->error(self::class . ": No constant type ID found for $name, generating a new one");
+			GlobalLogger::get()->error(self::class . ": No constant type ID found for $name, generating a new one");
 			$typeId = BlockTypeIds::newId();
 		}
 		return new BID($typeId, $tileClass);
@@ -125,11 +128,11 @@ final class VanillaBlocksInputs extends RegistrySource
 
 	/**
 	 * @phpstan-template TBlock of Block
-	 * @phpstan-param \Closure(BID) : TBlock $createBlock
+	 * @phpstan-param Closure(BID) : TBlock $createBlock
 	 * @phpstan-param class-string<covariant Tile> $tileClass
 	 * @phpstan-return TBlock
 	 */
-	private function register(string $name, \Closure $createBlock, ?string $tileClass = null) : Block
+	private function register(string $name, Closure $createBlock, ?string $tileClass = null) : Block
 	{
 		$block = $createBlock(self::makeBID($name, $tileClass));
 		self::registerValue($name, $block);
@@ -561,27 +564,19 @@ final class VanillaBlocksInputs extends RegistrySource
 		self::register("stained_hardened_glass_pane", fn (BID $id) => new StainedHardenedGlassPane($id, "Stained Hardened Glass Pane", $hardenedGlassBreakInfo));
 		self::register("carpet", fn (BID $id) => new Carpet($id, "Carpet", new Info(new BreakInfo(0.1))));
 		self::register("concrete", fn (BID $id) => new Concrete($id, "Concrete", new Info(BreakInfo::pickaxe(1.8, ToolTier::WOOD))));
-		self::register("concrete_slab", fn (BID $id) => new ConcreteSlab($id, "Concrete Slab", new Info(BreakInfo::pickaxe(1.8, ToolTier::WOOD, blastResistance: 0.36))));
-		self::register("concrete_stairs", fn (BID $id) => new ConcreteStairs($id, "Concrete Stairs", new Info(BreakInfo::pickaxe(1.8, ToolTier::WOOD, blastResistance: 0.36))));
 		self::register("concrete_powder", fn (BID $id) => new ConcretePowder($id, "Concrete Powder", new Info(BreakInfo::shovel(0.5))));
 
-		$newWoolBreakInfo = fn(float $blastResistance) => new class(0.8, ToolType::SHEARS, blastResistance: $blastResistance) extends BreakInfo {
-			public function getBreakTime(Item $item) : float
-			{
+
+		self::register("wool", fn(BID $id) => new Wool($id, "Wool", new Info(new class(0.8, ToolType::SHEARS) extends BreakInfo{
+			public function getBreakTime(Item $item) : float{
 				$time = parent::getBreakTime($item);
-				if ($item->getBlockToolType() === ToolType::SHEARS) {
+				if($item->getBlockToolType() === ToolType::SHEARS){
 					$time *= 3; //shears break compatible blocks 15x faster, but wool 5x
 				}
 
 				return $time;
 			}
-		};
-
-		self::register("wool", fn (BID $id) => new Wool($id, "Wool", new Info($newWoolBreakInfo(4.0))));
-
-		$woolBreakInfo = new Info($newWoolBreakInfo(0.8));
-		self::register("wool_slab", fn (BID $id) => new WoolSlab($id, "Wool Slab", $woolBreakInfo));
-		self::register("wool_stairs", fn (BID $id) => new WoolStair($id, "Wool Stair", $woolBreakInfo));
+		})));
 
 		self::register("end_stone_brick_wall", fn (BID $id) => new Wall($id, "End Stone Brick Wall", new Info(BreakInfo::pickaxe(3.0, ToolTier::WOOD, 45.0))));
 
@@ -702,9 +697,9 @@ final class VanillaBlocksInputs extends RegistrySource
 	}
 
 	/**
-	 * @phpstan-return \Closure() : Item
+	 * @phpstan-return Closure() : Item
 	 */
-	private static function getSignItemCallback(WoodType $woodType) : \Closure
+	private static function getSignItemCallback(WoodType $woodType) : Closure
 	{
 		return match ($woodType) {
 			WoodType::OAK => VanillaItems::OAK_SIGN(...),
@@ -724,9 +719,9 @@ final class VanillaBlocksInputs extends RegistrySource
 	}
 
 	/**
-	 * @phpstan-return \Closure() : Item
+	 * @phpstan-return Closure() : Item
 	 */
-	private static function getHangingSignItemCallback(WoodType $woodType) : \Closure
+	private static function getHangingSignItemCallback(WoodType $woodType) : Closure
 	{
 		return match ($woodType) {
 			WoodType::OAK => VanillaItems::OAK_HANGING_SIGN(...),

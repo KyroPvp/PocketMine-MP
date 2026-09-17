@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use Closure;
+use LogicException;
 use pocketmine\utils\Utils;
 use function array_keys;
 use function count;
@@ -173,6 +175,7 @@ final class VanillaBlocks{
 	private static Wood $_mCHERRY_WOOD;
 	private static Chest $_mCHEST;
 	private static ChiseledBookshelf $_mCHISELED_BOOKSHELF;
+	private static Opaque $_mCHISELED_CINNABAR;
 	private static Copper $_mCHISELED_COPPER;
 	private static Opaque $_mCHISELED_DEEPSLATE;
 	private static Opaque $_mCHISELED_NETHER_BRICKS;
@@ -182,10 +185,19 @@ final class VanillaBlocks{
 	private static Opaque $_mCHISELED_RESIN_BRICKS;
 	private static Opaque $_mCHISELED_SANDSTONE;
 	private static Opaque $_mCHISELED_STONE_BRICKS;
+	private static Opaque $_mCHISELED_SULFUR;
 	private static Opaque $_mCHISELED_TUFF;
 	private static Opaque $_mCHISELED_TUFF_BRICKS;
 	private static ChorusFlower $_mCHORUS_FLOWER;
 	private static ChorusPlant $_mCHORUS_PLANT;
+	private static Opaque $_mCINNABAR;
+	private static Opaque $_mCINNABAR_BRICKS;
+	private static Slab $_mCINNABAR_BRICK_SLAB;
+	private static Stair $_mCINNABAR_BRICK_STAIRS;
+	private static Wall $_mCINNABAR_BRICK_WALL;
+	private static Slab $_mCINNABAR_SLAB;
+	private static Stair $_mCINNABAR_STAIRS;
+	private static Wall $_mCINNABAR_WALL;
 	private static Clay $_mCLAY;
 	private static Coal $_mCOAL;
 	private static CoalOre $_mCOAL_ORE;
@@ -202,6 +214,7 @@ final class VanillaBlocks{
 	private static ChemistryTable $_mCOMPOUND_CREATOR;
 	private static Concrete $_mCONCRETE;
 	private static ConcretePowder $_mCONCRETE_POWDER;
+	private static ContinuousPotentSulfur $_mCONTINUOUS_POTENT_SULFUR;
 	private static Copper $_mCOPPER;
 	private static CopperBars $_mCOPPER_BARS;
 	private static CopperBulb $_mCOPPER_BULB;
@@ -249,6 +262,7 @@ final class VanillaBlocks{
 	private static Slab $_mCUT_RED_SANDSTONE_SLAB;
 	private static Opaque $_mCUT_SANDSTONE;
 	private static Slab $_mCUT_SANDSTONE_SLAB;
+	private static CyclingPotentSulfur $_mCYCLING_POTENT_SULFUR;
 	private static Flower $_mDANDELION;
 	private static WoodenButton $_mDARK_OAK_BUTTON;
 	private static CeilingCenterHangingSign $_mDARK_OAK_CEILING_CENTER_HANGING_SIGN;
@@ -644,6 +658,10 @@ final class VanillaBlocks{
 	private static Slab $_mPOLISHED_BLACKSTONE_SLAB;
 	private static Stair $_mPOLISHED_BLACKSTONE_STAIRS;
 	private static Wall $_mPOLISHED_BLACKSTONE_WALL;
+	private static Opaque $_mPOLISHED_CINNABAR;
+	private static Slab $_mPOLISHED_CINNABAR_SLAB;
+	private static Stair $_mPOLISHED_CINNABAR_STAIRS;
+	private static Wall $_mPOLISHED_CINNABAR_WALL;
 	private static Opaque $_mPOLISHED_DEEPSLATE;
 	private static Slab $_mPOLISHED_DEEPSLATE_SLAB;
 	private static Stair $_mPOLISHED_DEEPSLATE_STAIRS;
@@ -654,6 +672,10 @@ final class VanillaBlocks{
 	private static Opaque $_mPOLISHED_GRANITE;
 	private static Slab $_mPOLISHED_GRANITE_SLAB;
 	private static Stair $_mPOLISHED_GRANITE_STAIRS;
+	private static Opaque $_mPOLISHED_SULFUR;
+	private static Slab $_mPOLISHED_SULFUR_SLAB;
+	private static Stair $_mPOLISHED_SULFUR_STAIRS;
+	private static Wall $_mPOLISHED_SULFUR_WALL;
 	private static Opaque $_mPOLISHED_TUFF;
 	private static Slab $_mPOLISHED_TUFF_SLAB;
 	private static Stair $_mPOLISHED_TUFF_STAIRS;
@@ -676,6 +698,7 @@ final class VanillaBlocks{
 	private static Wood $_mPOPLAR_WOOD;
 	private static Flower $_mPOPPY;
 	private static Potato $_mPOTATOES;
+	private static PotentSulfur $_mPOTENT_SULFUR;
 	private static PotionCauldron $_mPOTION_CAULDRON;
 	private static PoweredRail $_mPOWERED_RAIL;
 	private static Opaque $_mPRISMARINE;
@@ -720,6 +743,7 @@ final class VanillaBlocks{
 	private static Slab $_mRED_SANDSTONE_SLAB;
 	private static Stair $_mRED_SANDSTONE_STAIRS;
 	private static Wall $_mRED_SANDSTONE_WALL;
+	private static RedShrub $_mRED_SHRUB;
 	private static Torch $_mRED_TORCH;
 	private static Flower $_mRED_TULIP;
 	private static Opaque $_mREINFORCED_DEEPSLATE;
@@ -804,6 +828,14 @@ final class VanillaBlocks{
 	private static StrawBed $_mSTRAW_BED;
 	private static StructureVoid $_mSTRUCTURE_VOID;
 	private static Sugarcane $_mSUGARCANE;
+	private static Opaque $_mSULFUR;
+	private static Opaque $_mSULFUR_BRICKS;
+	private static Slab $_mSULFUR_BRICK_SLAB;
+	private static Stair $_mSULFUR_BRICK_STAIRS;
+	private static Wall $_mSULFUR_BRICK_WALL;
+	private static Slab $_mSULFUR_SLAB;
+	private static Stair $_mSULFUR_STAIRS;
+	private static Wall $_mSULFUR_WALL;
 	private static DoublePlant $_mSUNFLOWER;
 	private static SweetBerryBush $_mSWEET_BERRY_BUSH;
 	private static TallGrass $_mTALL_GRASS;
@@ -851,8 +883,9 @@ final class VanillaBlocks{
 	private static Water $_mWATER;
 	private static WaterCauldron $_mWATER_CAULDRON;
 	private static NetherVines $_mWEEPING_VINES;
-	private static WeightedPressurePlate $_mWEIGHTED_PRESSURE_PLATE_HEAVY;
-	private static WeightedPressurePlate $_mWEIGHTED_PRESSURE_PLATE_LIGHT;
+	private static WeightedPressurePlateHeavy $_mWEIGHTED_PRESSURE_PLATE_HEAVY;
+	private static WeightedPressurePlateLight $_mWEIGHTED_PRESSURE_PLATE_LIGHT;
+	private static WetPotentSulfur $_mWET_POTENT_SULFUR;
 	private static Wheat $_mWHEAT;
 	private static Flower $_mWHITE_TULIP;
 	private static WitherRose $_mWITHER_ROSE;
@@ -875,20 +908,20 @@ final class VanillaBlocks{
 	 * Hack to allow ignoring PHPStan wrong type assignment error in one place instead of hundreds or thousands
 	 * Assumes that the input value already matches the expected type. If not, a TypeError will be thrown on assignment.
 	 *
-	 * @phpstan-param \Closure(never) : Block $closure
+	 * @phpstan-param Closure(never) : Block $closure
 	 */
-	private static function unsafeAssign(\Closure $closure, Block $memberValue) : void{
+	private static function unsafeAssign(Closure $closure, Block $memberValue) : void{
 		/**
 		 * This type is not correct either (the param is actually a subtype of Block) but it's called
 		 * unsafeAssign for a reason :)
-		 * @phpstan-var \Closure(Block) : Block $closure
+		 * @phpstan-var Closure(Block) : Block $closure
 		 */
 		$closure($memberValue);
 	}
 
 	/**
-	 * @return \Closure[]
-	 * @phpstan-return array<string, \Closure(never) : Block>
+	 * @return Closure[]
+	 * @phpstan-return array<string, Closure(never) : Block>
 	 */
 	private static function getInitAssigners() : array{
 		return [
@@ -1027,6 +1060,7 @@ final class VanillaBlocks{
 			"cherry_wood" => fn(Wood $v) => self::$_mCHERRY_WOOD = $v,
 			"chest" => fn(Chest $v) => self::$_mCHEST = $v,
 			"chiseled_bookshelf" => fn(ChiseledBookshelf $v) => self::$_mCHISELED_BOOKSHELF = $v,
+			"chiseled_cinnabar" => fn(Opaque $v) => self::$_mCHISELED_CINNABAR = $v,
 			"chiseled_copper" => fn(Copper $v) => self::$_mCHISELED_COPPER = $v,
 			"chiseled_deepslate" => fn(Opaque $v) => self::$_mCHISELED_DEEPSLATE = $v,
 			"chiseled_nether_bricks" => fn(Opaque $v) => self::$_mCHISELED_NETHER_BRICKS = $v,
@@ -1036,10 +1070,19 @@ final class VanillaBlocks{
 			"chiseled_resin_bricks" => fn(Opaque $v) => self::$_mCHISELED_RESIN_BRICKS = $v,
 			"chiseled_sandstone" => fn(Opaque $v) => self::$_mCHISELED_SANDSTONE = $v,
 			"chiseled_stone_bricks" => fn(Opaque $v) => self::$_mCHISELED_STONE_BRICKS = $v,
+			"chiseled_sulfur" => fn(Opaque $v) => self::$_mCHISELED_SULFUR = $v,
 			"chiseled_tuff" => fn(Opaque $v) => self::$_mCHISELED_TUFF = $v,
 			"chiseled_tuff_bricks" => fn(Opaque $v) => self::$_mCHISELED_TUFF_BRICKS = $v,
 			"chorus_flower" => fn(ChorusFlower $v) => self::$_mCHORUS_FLOWER = $v,
 			"chorus_plant" => fn(ChorusPlant $v) => self::$_mCHORUS_PLANT = $v,
+			"cinnabar" => fn(Opaque $v) => self::$_mCINNABAR = $v,
+			"cinnabar_bricks" => fn(Opaque $v) => self::$_mCINNABAR_BRICKS = $v,
+			"cinnabar_brick_slab" => fn(Slab $v) => self::$_mCINNABAR_BRICK_SLAB = $v,
+			"cinnabar_brick_stairs" => fn(Stair $v) => self::$_mCINNABAR_BRICK_STAIRS = $v,
+			"cinnabar_brick_wall" => fn(Wall $v) => self::$_mCINNABAR_BRICK_WALL = $v,
+			"cinnabar_slab" => fn(Slab $v) => self::$_mCINNABAR_SLAB = $v,
+			"cinnabar_stairs" => fn(Stair $v) => self::$_mCINNABAR_STAIRS = $v,
+			"cinnabar_wall" => fn(Wall $v) => self::$_mCINNABAR_WALL = $v,
 			"clay" => fn(Clay $v) => self::$_mCLAY = $v,
 			"coal" => fn(Coal $v) => self::$_mCOAL = $v,
 			"coal_ore" => fn(CoalOre $v) => self::$_mCOAL_ORE = $v,
@@ -1056,6 +1099,7 @@ final class VanillaBlocks{
 			"compound_creator" => fn(ChemistryTable $v) => self::$_mCOMPOUND_CREATOR = $v,
 			"concrete" => fn(Concrete $v) => self::$_mCONCRETE = $v,
 			"concrete_powder" => fn(ConcretePowder $v) => self::$_mCONCRETE_POWDER = $v,
+			"continuous_potent_sulfur" => fn(ContinuousPotentSulfur $v) => self::$_mCONTINUOUS_POTENT_SULFUR = $v,
 			"copper" => fn(Copper $v) => self::$_mCOPPER = $v,
 			"copper_bars" => fn(CopperBars $v) => self::$_mCOPPER_BARS = $v,
 			"copper_bulb" => fn(CopperBulb $v) => self::$_mCOPPER_BULB = $v,
@@ -1103,6 +1147,7 @@ final class VanillaBlocks{
 			"cut_red_sandstone_slab" => fn(Slab $v) => self::$_mCUT_RED_SANDSTONE_SLAB = $v,
 			"cut_sandstone" => fn(Opaque $v) => self::$_mCUT_SANDSTONE = $v,
 			"cut_sandstone_slab" => fn(Slab $v) => self::$_mCUT_SANDSTONE_SLAB = $v,
+			"cycling_potent_sulfur" => fn(CyclingPotentSulfur $v) => self::$_mCYCLING_POTENT_SULFUR = $v,
 			"dandelion" => fn(Flower $v) => self::$_mDANDELION = $v,
 			"dark_oak_button" => fn(WoodenButton $v) => self::$_mDARK_OAK_BUTTON = $v,
 			"dark_oak_ceiling_center_hanging_sign" => fn(CeilingCenterHangingSign $v) => self::$_mDARK_OAK_CEILING_CENTER_HANGING_SIGN = $v,
@@ -1498,6 +1543,10 @@ final class VanillaBlocks{
 			"polished_blackstone_slab" => fn(Slab $v) => self::$_mPOLISHED_BLACKSTONE_SLAB = $v,
 			"polished_blackstone_stairs" => fn(Stair $v) => self::$_mPOLISHED_BLACKSTONE_STAIRS = $v,
 			"polished_blackstone_wall" => fn(Wall $v) => self::$_mPOLISHED_BLACKSTONE_WALL = $v,
+			"polished_cinnabar" => fn(Opaque $v) => self::$_mPOLISHED_CINNABAR = $v,
+			"polished_cinnabar_slab" => fn(Slab $v) => self::$_mPOLISHED_CINNABAR_SLAB = $v,
+			"polished_cinnabar_stairs" => fn(Stair $v) => self::$_mPOLISHED_CINNABAR_STAIRS = $v,
+			"polished_cinnabar_wall" => fn(Wall $v) => self::$_mPOLISHED_CINNABAR_WALL = $v,
 			"polished_deepslate" => fn(Opaque $v) => self::$_mPOLISHED_DEEPSLATE = $v,
 			"polished_deepslate_slab" => fn(Slab $v) => self::$_mPOLISHED_DEEPSLATE_SLAB = $v,
 			"polished_deepslate_stairs" => fn(Stair $v) => self::$_mPOLISHED_DEEPSLATE_STAIRS = $v,
@@ -1508,6 +1557,10 @@ final class VanillaBlocks{
 			"polished_granite" => fn(Opaque $v) => self::$_mPOLISHED_GRANITE = $v,
 			"polished_granite_slab" => fn(Slab $v) => self::$_mPOLISHED_GRANITE_SLAB = $v,
 			"polished_granite_stairs" => fn(Stair $v) => self::$_mPOLISHED_GRANITE_STAIRS = $v,
+			"polished_sulfur" => fn(Opaque $v) => self::$_mPOLISHED_SULFUR = $v,
+			"polished_sulfur_slab" => fn(Slab $v) => self::$_mPOLISHED_SULFUR_SLAB = $v,
+			"polished_sulfur_stairs" => fn(Stair $v) => self::$_mPOLISHED_SULFUR_STAIRS = $v,
+			"polished_sulfur_wall" => fn(Wall $v) => self::$_mPOLISHED_SULFUR_WALL = $v,
 			"polished_tuff" => fn(Opaque $v) => self::$_mPOLISHED_TUFF = $v,
 			"polished_tuff_slab" => fn(Slab $v) => self::$_mPOLISHED_TUFF_SLAB = $v,
 			"polished_tuff_stairs" => fn(Stair $v) => self::$_mPOLISHED_TUFF_STAIRS = $v,
@@ -1530,6 +1583,7 @@ final class VanillaBlocks{
 			"poplar_wood" => fn(Wood $v) => self::$_mPOPLAR_WOOD = $v,
 			"poppy" => fn(Flower $v) => self::$_mPOPPY = $v,
 			"potatoes" => fn(Potato $v) => self::$_mPOTATOES = $v,
+			"potent_sulfur" => fn(PotentSulfur $v) => self::$_mPOTENT_SULFUR = $v,
 			"potion_cauldron" => fn(PotionCauldron $v) => self::$_mPOTION_CAULDRON = $v,
 			"powered_rail" => fn(PoweredRail $v) => self::$_mPOWERED_RAIL = $v,
 			"prismarine" => fn(Opaque $v) => self::$_mPRISMARINE = $v,
@@ -1574,6 +1628,7 @@ final class VanillaBlocks{
 			"red_sandstone_slab" => fn(Slab $v) => self::$_mRED_SANDSTONE_SLAB = $v,
 			"red_sandstone_stairs" => fn(Stair $v) => self::$_mRED_SANDSTONE_STAIRS = $v,
 			"red_sandstone_wall" => fn(Wall $v) => self::$_mRED_SANDSTONE_WALL = $v,
+			"red_shrub" => fn(RedShrub $v) => self::$_mRED_SHRUB = $v,
 			"red_torch" => fn(Torch $v) => self::$_mRED_TORCH = $v,
 			"red_tulip" => fn(Flower $v) => self::$_mRED_TULIP = $v,
 			"reinforced_deepslate" => fn(Opaque $v) => self::$_mREINFORCED_DEEPSLATE = $v,
@@ -1658,6 +1713,14 @@ final class VanillaBlocks{
 			"straw_bed" => fn(StrawBed $v) => self::$_mSTRAW_BED = $v,
 			"structure_void" => fn(StructureVoid $v) => self::$_mSTRUCTURE_VOID = $v,
 			"sugarcane" => fn(Sugarcane $v) => self::$_mSUGARCANE = $v,
+			"sulfur" => fn(Opaque $v) => self::$_mSULFUR = $v,
+			"sulfur_bricks" => fn(Opaque $v) => self::$_mSULFUR_BRICKS = $v,
+			"sulfur_brick_slab" => fn(Slab $v) => self::$_mSULFUR_BRICK_SLAB = $v,
+			"sulfur_brick_stairs" => fn(Stair $v) => self::$_mSULFUR_BRICK_STAIRS = $v,
+			"sulfur_brick_wall" => fn(Wall $v) => self::$_mSULFUR_BRICK_WALL = $v,
+			"sulfur_slab" => fn(Slab $v) => self::$_mSULFUR_SLAB = $v,
+			"sulfur_stairs" => fn(Stair $v) => self::$_mSULFUR_STAIRS = $v,
+			"sulfur_wall" => fn(Wall $v) => self::$_mSULFUR_WALL = $v,
 			"sunflower" => fn(DoublePlant $v) => self::$_mSUNFLOWER = $v,
 			"sweet_berry_bush" => fn(SweetBerryBush $v) => self::$_mSWEET_BERRY_BUSH = $v,
 			"tall_grass" => fn(TallGrass $v) => self::$_mTALL_GRASS = $v,
@@ -1705,8 +1768,9 @@ final class VanillaBlocks{
 			"water" => fn(Water $v) => self::$_mWATER = $v,
 			"water_cauldron" => fn(WaterCauldron $v) => self::$_mWATER_CAULDRON = $v,
 			"weeping_vines" => fn(NetherVines $v) => self::$_mWEEPING_VINES = $v,
-			"weighted_pressure_plate_heavy" => fn(WeightedPressurePlate $v) => self::$_mWEIGHTED_PRESSURE_PLATE_HEAVY = $v,
-			"weighted_pressure_plate_light" => fn(WeightedPressurePlate $v) => self::$_mWEIGHTED_PRESSURE_PLATE_LIGHT = $v,
+			"weighted_pressure_plate_heavy" => fn(WeightedPressurePlateHeavy $v) => self::$_mWEIGHTED_PRESSURE_PLATE_HEAVY = $v,
+			"weighted_pressure_plate_light" => fn(WeightedPressurePlateLight $v) => self::$_mWEIGHTED_PRESSURE_PLATE_LIGHT = $v,
+			"wet_potent_sulfur" => fn(WetPotentSulfur $v) => self::$_mWET_POTENT_SULFUR = $v,
 			"wheat" => fn(Wheat $v) => self::$_mWHEAT = $v,
 			"white_tulip" => fn(Flower $v) => self::$_mWHITE_TULIP = $v,
 			"wither_rose" => fn(WitherRose $v) => self::$_mWITHER_ROSE = $v,
@@ -1719,17 +1783,17 @@ final class VanillaBlocks{
 		//This nasty mess of closures allows us to suppress PHPStan type assignment errors in one place instead of
 		//on every single assignment. This will only run one time on first init, so it's fine for performance.
 		if(self::$initialized){
-			throw new \LogicException("Circular dependency detected - use RegistrySource->registerDelayed() if the circular dependency can't be avoided");
+			throw new LogicException("Circular dependency detected - use RegistrySource->registerDelayed() if the circular dependency can't be avoided");
 		}
 		self::$initialized = true;
 		$assigners = self::getInitAssigners();
 		$assigned = [];
 		$source = new VanillaBlocksInputs();
 		foreach($source->getAllValues() as $name => $value){
-			$assigner = $assigners[$name] ?? throw new \LogicException("Unexpected source registry member \"$name\" (code probably needs regenerating)");
+			$assigner = $assigners[$name] ?? throw new LogicException("Unexpected source registry member \"$name\" (code probably needs regenerating)");
 			if(isset($assigned[$name])){
 				//this should be prevented by RegistrySource, but it doesn't hurt to have some redundancy
-				throw new \LogicException("Repeated registry source member \"$name\"");
+				throw new LogicException("Repeated registry source member \"$name\"");
 			}
 			self::$members[mb_strtoupper($name)] = $value;
 			$assigned[$name] = true;
@@ -1737,7 +1801,7 @@ final class VanillaBlocks{
 			self::unsafeAssign($assigner, $value);
 		}
 		if(count($assigners) > 0){
-			throw new \LogicException("Missing values for registry members (code probably needs regenerating): " . implode(", ", array_keys($assigners)));
+			throw new LogicException("Missing values for registry members (code probably needs regenerating): " . implode(", ", array_keys($assigners)));
 		}
 	}
 
@@ -2425,6 +2489,13 @@ final class VanillaBlocks{
 		return clone self::$_mCHISELED_BOOKSHELF;
 	}
 
+	public static function CHISELED_CINNABAR() : Opaque{
+		if(!isset(self::$_mCHISELED_CINNABAR)){
+			self::init();
+		}
+		return clone self::$_mCHISELED_CINNABAR;
+	}
+
 	public static function CHISELED_COPPER() : Copper{
 		if(!isset(self::$_mCHISELED_COPPER)){ self::init(); }
 		return clone self::$_mCHISELED_COPPER;
@@ -2470,6 +2541,13 @@ final class VanillaBlocks{
 		return clone self::$_mCHISELED_STONE_BRICKS;
 	}
 
+	public static function CHISELED_SULFUR() : Opaque{
+		if(!isset(self::$_mCHISELED_SULFUR)){
+			self::init();
+		}
+		return clone self::$_mCHISELED_SULFUR;
+	}
+
 	public static function CHISELED_TUFF() : Opaque{
 		if(!isset(self::$_mCHISELED_TUFF)){ self::init(); }
 		return clone self::$_mCHISELED_TUFF;
@@ -2488,6 +2566,62 @@ final class VanillaBlocks{
 	public static function CHORUS_PLANT() : ChorusPlant{
 		if(!isset(self::$_mCHORUS_PLANT)){ self::init(); }
 		return clone self::$_mCHORUS_PLANT;
+	}
+
+	public static function CINNABAR() : Opaque{
+		if(!isset(self::$_mCINNABAR)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR;
+	}
+
+	public static function CINNABAR_BRICKS() : Opaque{
+		if(!isset(self::$_mCINNABAR_BRICKS)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR_BRICKS;
+	}
+
+	public static function CINNABAR_BRICK_SLAB() : Slab{
+		if(!isset(self::$_mCINNABAR_BRICK_SLAB)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR_BRICK_SLAB;
+	}
+
+	public static function CINNABAR_BRICK_STAIRS() : Stair{
+		if(!isset(self::$_mCINNABAR_BRICK_STAIRS)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR_BRICK_STAIRS;
+	}
+
+	public static function CINNABAR_BRICK_WALL() : Wall{
+		if(!isset(self::$_mCINNABAR_BRICK_WALL)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR_BRICK_WALL;
+	}
+
+	public static function CINNABAR_SLAB() : Slab{
+		if(!isset(self::$_mCINNABAR_SLAB)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR_SLAB;
+	}
+
+	public static function CINNABAR_STAIRS() : Stair{
+		if(!isset(self::$_mCINNABAR_STAIRS)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR_STAIRS;
+	}
+
+	public static function CINNABAR_WALL() : Wall{
+		if(!isset(self::$_mCINNABAR_WALL)){
+			self::init();
+		}
+		return clone self::$_mCINNABAR_WALL;
 	}
 
 	public static function CLAY() : Clay{
@@ -2568,6 +2702,13 @@ final class VanillaBlocks{
 	public static function CONCRETE_POWDER() : ConcretePowder{
 		if(!isset(self::$_mCONCRETE_POWDER)){ self::init(); }
 		return clone self::$_mCONCRETE_POWDER;
+	}
+
+	public static function CONTINUOUS_POTENT_SULFUR() : ContinuousPotentSulfur{
+		if(!isset(self::$_mCONTINUOUS_POTENT_SULFUR)){
+			self::init();
+		}
+		return clone self::$_mCONTINUOUS_POTENT_SULFUR;
 	}
 
 	public static function COPPER() : Copper{
@@ -2803,6 +2944,13 @@ final class VanillaBlocks{
 	public static function CUT_SANDSTONE_SLAB() : Slab{
 		if(!isset(self::$_mCUT_SANDSTONE_SLAB)){ self::init(); }
 		return clone self::$_mCUT_SANDSTONE_SLAB;
+	}
+
+	public static function CYCLING_POTENT_SULFUR() : CyclingPotentSulfur{
+		if(!isset(self::$_mCYCLING_POTENT_SULFUR)){
+			self::init();
+		}
+		return clone self::$_mCYCLING_POTENT_SULFUR;
 	}
 
 	public static function DANDELION() : Flower{
@@ -4780,6 +4928,34 @@ final class VanillaBlocks{
 		return clone self::$_mPOLISHED_BLACKSTONE_WALL;
 	}
 
+	public static function POLISHED_CINNABAR() : Opaque{
+		if(!isset(self::$_mPOLISHED_CINNABAR)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_CINNABAR;
+	}
+
+	public static function POLISHED_CINNABAR_SLAB() : Slab{
+		if(!isset(self::$_mPOLISHED_CINNABAR_SLAB)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_CINNABAR_SLAB;
+	}
+
+	public static function POLISHED_CINNABAR_STAIRS() : Stair{
+		if(!isset(self::$_mPOLISHED_CINNABAR_STAIRS)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_CINNABAR_STAIRS;
+	}
+
+	public static function POLISHED_CINNABAR_WALL() : Wall{
+		if(!isset(self::$_mPOLISHED_CINNABAR_WALL)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_CINNABAR_WALL;
+	}
+
 	public static function POLISHED_DEEPSLATE() : Opaque{
 		if(!isset(self::$_mPOLISHED_DEEPSLATE)){ self::init(); }
 		return clone self::$_mPOLISHED_DEEPSLATE;
@@ -4828,6 +5004,34 @@ final class VanillaBlocks{
 	public static function POLISHED_GRANITE_STAIRS() : Stair{
 		if(!isset(self::$_mPOLISHED_GRANITE_STAIRS)){ self::init(); }
 		return clone self::$_mPOLISHED_GRANITE_STAIRS;
+	}
+
+	public static function POLISHED_SULFUR() : Opaque{
+		if(!isset(self::$_mPOLISHED_SULFUR)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_SULFUR;
+	}
+
+	public static function POLISHED_SULFUR_SLAB() : Slab{
+		if(!isset(self::$_mPOLISHED_SULFUR_SLAB)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_SULFUR_SLAB;
+	}
+
+	public static function POLISHED_SULFUR_STAIRS() : Stair{
+		if(!isset(self::$_mPOLISHED_SULFUR_STAIRS)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_SULFUR_STAIRS;
+	}
+
+	public static function POLISHED_SULFUR_WALL() : Wall{
+		if(!isset(self::$_mPOLISHED_SULFUR_WALL)){
+			self::init();
+		}
+		return clone self::$_mPOLISHED_SULFUR_WALL;
 	}
 
 	public static function POLISHED_TUFF() : Opaque{
@@ -4938,6 +5142,13 @@ final class VanillaBlocks{
 	public static function POTATOES() : Potato{
 		if(!isset(self::$_mPOTATOES)){ self::init(); }
 		return clone self::$_mPOTATOES;
+	}
+
+	public static function POTENT_SULFUR() : PotentSulfur{
+		if(!isset(self::$_mPOTENT_SULFUR)){
+			self::init();
+		}
+		return clone self::$_mPOTENT_SULFUR;
 	}
 
 	public static function POTION_CAULDRON() : PotionCauldron{
@@ -5158,6 +5369,13 @@ final class VanillaBlocks{
 	public static function RED_SANDSTONE_WALL() : Wall{
 		if(!isset(self::$_mRED_SANDSTONE_WALL)){ self::init(); }
 		return clone self::$_mRED_SANDSTONE_WALL;
+	}
+
+	public static function RED_SHRUB() : RedShrub{
+		if(!isset(self::$_mRED_SHRUB)){
+			self::init();
+		}
+		return clone self::$_mRED_SHRUB;
 	}
 
 	public static function RED_TORCH() : Torch{
@@ -5580,6 +5798,62 @@ final class VanillaBlocks{
 		return clone self::$_mSUGARCANE;
 	}
 
+	public static function SULFUR() : Opaque{
+		if(!isset(self::$_mSULFUR)){
+			self::init();
+		}
+		return clone self::$_mSULFUR;
+	}
+
+	public static function SULFUR_BRICKS() : Opaque{
+		if(!isset(self::$_mSULFUR_BRICKS)){
+			self::init();
+		}
+		return clone self::$_mSULFUR_BRICKS;
+	}
+
+	public static function SULFUR_BRICK_SLAB() : Slab{
+		if(!isset(self::$_mSULFUR_BRICK_SLAB)){
+			self::init();
+		}
+		return clone self::$_mSULFUR_BRICK_SLAB;
+	}
+
+	public static function SULFUR_BRICK_STAIRS() : Stair{
+		if(!isset(self::$_mSULFUR_BRICK_STAIRS)){
+			self::init();
+		}
+		return clone self::$_mSULFUR_BRICK_STAIRS;
+	}
+
+	public static function SULFUR_BRICK_WALL() : Wall{
+		if(!isset(self::$_mSULFUR_BRICK_WALL)){
+			self::init();
+		}
+		return clone self::$_mSULFUR_BRICK_WALL;
+	}
+
+	public static function SULFUR_SLAB() : Slab{
+		if(!isset(self::$_mSULFUR_SLAB)){
+			self::init();
+		}
+		return clone self::$_mSULFUR_SLAB;
+	}
+
+	public static function SULFUR_STAIRS() : Stair{
+		if(!isset(self::$_mSULFUR_STAIRS)){
+			self::init();
+		}
+		return clone self::$_mSULFUR_STAIRS;
+	}
+
+	public static function SULFUR_WALL() : Wall{
+		if(!isset(self::$_mSULFUR_WALL)){
+			self::init();
+		}
+		return clone self::$_mSULFUR_WALL;
+	}
+
 	public static function SUNFLOWER() : DoublePlant{
 		if(!isset(self::$_mSUNFLOWER)){ self::init(); }
 		return clone self::$_mSUNFLOWER;
@@ -5815,14 +6089,21 @@ final class VanillaBlocks{
 		return clone self::$_mWEEPING_VINES;
 	}
 
-	public static function WEIGHTED_PRESSURE_PLATE_HEAVY() : WeightedPressurePlate{
+	public static function WEIGHTED_PRESSURE_PLATE_HEAVY() : WeightedPressurePlateHeavy{
 		if(!isset(self::$_mWEIGHTED_PRESSURE_PLATE_HEAVY)){ self::init(); }
 		return clone self::$_mWEIGHTED_PRESSURE_PLATE_HEAVY;
 	}
 
-	public static function WEIGHTED_PRESSURE_PLATE_LIGHT() : WeightedPressurePlate{
+	public static function WEIGHTED_PRESSURE_PLATE_LIGHT() : WeightedPressurePlateLight{
 		if(!isset(self::$_mWEIGHTED_PRESSURE_PLATE_LIGHT)){ self::init(); }
 		return clone self::$_mWEIGHTED_PRESSURE_PLATE_LIGHT;
+	}
+
+	public static function WET_POTENT_SULFUR() : WetPotentSulfur{
+		if(!isset(self::$_mWET_POTENT_SULFUR)){
+			self::init();
+		}
+		return clone self::$_mWET_POTENT_SULFUR;
 	}
 
 	public static function WHEAT() : Wheat{

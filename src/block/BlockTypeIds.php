@@ -887,12 +887,6 @@ final class BlockTypeIds{
 	public const CINNABAR_BRICK_STAIRS = 10856;
 	public const CINNABAR_BRICK_WALL = 10857;
 
-	public const WOOL_STAIRS = 10858;
-	public const WOOL_SLAB = 10859;
-
-	public const CONCRETE_STAIRS = 10860;
-	public const CONCRETE_SLAB = 10861;
-
 	public const POPLAR_BUTTON = 10862;
 	public const POPLAR_DOOR = 10863;
 	public const POPLAR_FENCE = 10864;
