@@ -567,6 +567,7 @@ final class VanillaBlockMappings
 			Ids::MANGROVE_LEAVES => Blocks::MANGROVE_LEAVES(),
 			Ids::OAK_LEAVES => Blocks::OAK_LEAVES(),
 			Ids::SPRUCE_LEAVES => Blocks::SPRUCE_LEAVES(),
+			Ids::PALE_OAK_LEAVES => Blocks::PALE_OAK_LEAVES(),
 			Ids::ORANGE_POPLAR_LEAVES => Blocks::ORANGE_POPLAR_LEAVES(),
 			Ids::RED_POPLAR_LEAVES => Blocks::RED_POPLAR_LEAVES(),
 			Ids::YELLOW_POPLAR_LEAVES => Blocks::YELLOW_POPLAR_LEAVES()
