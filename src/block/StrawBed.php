@@ -24,9 +24,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\block\tile\Bed as TileBed;
-use pocketmine\block\utils\Colored;
-use pocketmine\block\utils\ColoredTrait;
-use pocketmine\block\utils\DyeColor;
 use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\HorizontalFacingTrait;
 use pocketmine\block\utils\SupportType;
@@ -43,23 +40,10 @@ use pocketmine\utils\TextFormat;
 use pocketmine\world\BlockTransaction;
 use pocketmine\world\World;
 
-class Bed extends Sleepable implements Colored{
-	use ColoredTrait;
-
-	public function readStateFromWorld() : Block{
-		parent::readStateFromWorld();
-		$tile = $this->position->getWorld()->getTile($this->position);
-		$this->color = $tile instanceof TileBed ? $tile->getColor() : DyeColor::RED;
-		return $this;
+class StrawBed extends Sleepable
+{
+	public function getMaxStackSize() : int
+	{
+		return 16;
 	}
-
-	public function writeStateToWorld() : void{
-		parent::writeStateToWorld();
-		$tile = $this->position->getWorld()->getTile($this->position);
-		if($tile instanceof TileBed){
-			$tile->setColor($this->color);
-		}
-	}
-
-	public function getMaxStackSize() : int{ return 1; }
 }
