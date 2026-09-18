@@ -120,15 +120,6 @@ abstract class Sleepable extends Transparent implements HorizontalFacing
 		}
 	}
 
-	public function onEntityLand(Entity $entity) : ?float
-	{
-		if ($entity instanceof Living && $entity->isSneaking()) {
-			return null;
-		}
-		$entity->fallDistance *= 0.5;
-		return $entity->getMotion()->y * -3 / 4;
-	}
-
 	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, Player|null $player = null) : bool
 	{
 		if ($this->canBeSupportedAt($blockReplace)) {

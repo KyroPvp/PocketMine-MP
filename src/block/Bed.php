@@ -46,6 +46,15 @@ use pocketmine\world\World;
 class Bed extends Sleepable implements Colored{
 	use ColoredTrait;
 
+	public function onEntityLand(Entity $entity) : ?float
+	{
+		if ($entity instanceof Living && $entity->isSneaking()) {
+			return null;
+		}
+		$entity->fallDistance *= 0.5;
+		return $entity->getMotion()->y * -3 / 4;
+	}
+
 	public function readStateFromWorld() : Block{
 		parent::readStateFromWorld();
 		$tile = $this->position->getWorld()->getTile($this->position);
