@@ -23,23 +23,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\block\tile\Bed as TileBed;
-use pocketmine\block\utils\HorizontalFacing;
-use pocketmine\block\utils\HorizontalFacingTrait;
-use pocketmine\block\utils\SupportType;
-use pocketmine\data\runtime\RuntimeDataDescriber;
-use pocketmine\entity\Entity;
-use pocketmine\entity\Living;
-use pocketmine\item\Item;
-use pocketmine\lang\KnownTranslationFactory;
-use pocketmine\math\AxisAlignedBB;
-use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
-use pocketmine\player\Player;
-use pocketmine\utils\TextFormat;
-use pocketmine\world\BlockTransaction;
-use pocketmine\world\World;
-
 class StrawBed extends Sleepable
 {
 	public function getMaxStackSize() : int
