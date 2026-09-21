@@ -26,6 +26,7 @@ namespace pocketmine\block;
 use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\HorizontalFacingTrait;
 use pocketmine\block\utils\SupportType;
+use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 use pocketmine\item\Item;
@@ -102,9 +103,9 @@ abstract class BedBase extends Transparent implements HorizontalFacing{
 
 	}
 
-	public function getOtherHalf() : ?Bed{
+	public function getOtherHalf() : ?BedBase{
 		$other = $this->getSide($this->getOtherHalfSide());
-		if($other instanceof Bed && $other->head !== $this->head && $other->facing === $this->facing){
+		if($other instanceof BedBase && $other->head !== $this->head && $other->facing === $this->facing){
 			return $other;
 		}
 
@@ -171,6 +172,12 @@ abstract class BedBase extends Transparent implements HorizontalFacing{
 	}
 
 	public function getMaxStackSize() : int{ return 1; }
+
+	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
+		$w->horizontalFacing($this->facing);
+		$w->bool($this->occupied);
+		$w->bool($this->head);
+	}
 
 	protected function recalculateCollisionBoxes() : array{
 		return [AxisAlignedBB::one()->trim(Facing::UP, 7 / 16)];

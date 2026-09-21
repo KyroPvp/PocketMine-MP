@@ -27,18 +27,11 @@ use pocketmine\block\tile\Bed as TileBed;
 use pocketmine\block\utils\Colored;
 use pocketmine\block\utils\ColoredTrait;
 use pocketmine\block\utils\DyeColor;
-use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 
 class Bed extends BedBase implements Colored{
 	use ColoredTrait;
-
-	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
-		$w->horizontalFacing($this->facing);
-		$w->bool($this->occupied);
-		$w->bool($this->head);
-	}
 
 	public function readStateFromWorld() : Block{
 		parent::readStateFromWorld();
