@@ -27,6 +27,7 @@ use pocketmine\block\BaseSign;
 use pocketmine\block\Bed;
 use pocketmine\block\BlockTypeTags;
 use pocketmine\block\RespawnAnchor;
+use pocketmine\block\StrawBed;
 use pocketmine\block\UnknownBlock;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\command\CommandSender;
@@ -1171,7 +1172,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			return false;
 		}
 
-		if($b instanceof Bed){
+		if($b instanceof Bed || $b instanceof StrawBed){
 			$b->setOccupied();
 			$this->getWorld()->setBlock($pos, $b);
 		}
@@ -1189,11 +1190,24 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	public function stopSleep() : void{
 		if($this->sleeping instanceof Vector3){
 			$b = $this->getWorld()->getBlock($this->sleeping);
-			if($b instanceof Bed){
+			$strawHalves = [];
+
+			if($b instanceof StrawBed){
+				$strawHalves[] = $b->getPosition();
+				$other = $b->getOtherHalf();
+				if($other !== null){
+					$strawHalves[] = $other->getPosition();
+				}
+			}elseif($b instanceof Bed){
 				$b->setOccupied(false);
 				$this->getWorld()->setBlock($this->sleeping, $b);
 			}
+
 			(new PlayerBedLeaveEvent($this, $b))->call();
+
+			foreach($strawHalves as $pos){
+				$this->getWorld()->setBlock($pos, VanillaBlocks::AIR());
+			}
 
 			$this->sleeping = null;
 			$this->networkPropertiesDirty = true;

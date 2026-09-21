@@ -84,6 +84,7 @@ use pocketmine\block\SmallDripleaf;
 use pocketmine\block\SnowLayer;
 use pocketmine\block\Sponge;
 use pocketmine\block\StraightOnlyRail;
+use pocketmine\block\StrawBed;
 use pocketmine\block\Sugarcane;
 use pocketmine\block\SweetBerryBush;
 use pocketmine\block\TNT;
@@ -495,13 +496,15 @@ final class VanillaBlockMappings{
 		$reg->mapColoredHorizontalConnections(Blocks::STAINED_GLASS_PANE(), "minecraft:", "_stained_glass_pane");
 		$reg->mapColored(Blocks::WOOL(), "minecraft:", "_wool");
 
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::GLAZED_TERRACOTTA())
-			->idComponents([
-				"minecraft:",
-				new ValueFromStringProperty("color", ValueMappings::getInstance()->dyeColorWithSilver, fn(GlazedTerracotta $b) => $b->getColor(), fn(GlazedTerracotta $b, DyeColor $v) => $b->setColor($v)),
-				"_glazed_terracotta"
-			])
-			->properties([$commonProperties->horizontalFacingClassic])
+
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::GLAZED_TERRACOTTA())
+				->idComponents([
+					"minecraft:",
+					new ValueFromStringProperty("color", ValueMappings::getInstance()->dyeColorWithSilver, fn(GlazedTerracotta $b) => $b->getColor(), fn(GlazedTerracotta $b, DyeColor $v) => $b->setColor($v)),
+					"_glazed_terracotta"
+				])
+				->properties([$commonProperties->horizontalFacingClassic])
 		);
 	}
 
@@ -514,21 +517,23 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::CANDLE(), Ids::CANDLE)->properties($candleProperties));
 		$reg->mapModel(Model::create(Blocks::CAKE_WITH_CANDLE(), Ids::CANDLE_CAKE)->properties($cakeWithCandleProperties));
 
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::DYED_CANDLE())
-			->idComponents([
-				"minecraft:",
-				$commonProperties->dyeColorIdInfix,
-				"_candle"
-			])
-			->properties($candleProperties)
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::DYED_CANDLE())
+				->idComponents([
+					"minecraft:",
+					$commonProperties->dyeColorIdInfix,
+					"_candle"
+				])
+				->properties($candleProperties)
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CAKE_WITH_DYED_CANDLE())
-			->idComponents([
-				"minecraft:",
-				$commonProperties->dyeColorIdInfix,
-				"_candle_cake"
-			])
-			->properties($cakeWithCandleProperties)
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::CAKE_WITH_DYED_CANDLE())
+				->idComponents([
+					"minecraft:",
+					$commonProperties->dyeColorIdInfix,
+					"_candle_cake"
+				])
+				->properties($cakeWithCandleProperties)
 		);
 	}
 
@@ -547,8 +552,11 @@ final class VanillaBlockMappings{
 			Ids::JUNGLE_LEAVES => Blocks::JUNGLE_LEAVES(),
 			Ids::MANGROVE_LEAVES => Blocks::MANGROVE_LEAVES(),
 			Ids::OAK_LEAVES => Blocks::OAK_LEAVES(),
+			Ids::SPRUCE_LEAVES => Blocks::SPRUCE_LEAVES(),
 			Ids::PALE_OAK_LEAVES => Blocks::PALE_OAK_LEAVES(),
-			Ids::SPRUCE_LEAVES => Blocks::SPRUCE_LEAVES()
+			Ids::ORANGE_POPLAR_LEAVES => Blocks::ORANGE_POPLAR_LEAVES(),
+			Ids::RED_POPLAR_LEAVES => Blocks::RED_POPLAR_LEAVES(),
+			Ids::YELLOW_POPLAR_LEAVES => Blocks::YELLOW_POPLAR_LEAVES()
 		] as $id => $block){
 			$reg->mapModel(Model::create($block, $id)->properties($properties));
 		}
@@ -629,181 +637,200 @@ final class VanillaBlockMappings{
 	private static function registerCoralMappings(BlockSerializerDeserializerRegistrar $reg, CommonProperties $commonProperties) : void{
 		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CORAL())->idComponents([...$commonProperties->coralIdPrefixes, "_coral"]));
 		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CORAL_BLOCK())->idComponents([...$commonProperties->coralIdPrefixes, "_coral_block"]));
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CORAL_FAN())
-			->idComponents([...$commonProperties->coralIdPrefixes, "_coral_fan"])
-			->properties([
-				new ValueFromIntProperty(StateNames::CORAL_FAN_DIRECTION, ValueMappings::getInstance()->coralAxis, fn(FloorCoralFan $b) => $b->getAxis(), fn(FloorCoralFan $b, int $v) => $b->setAxis($v))
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::CORAL_FAN())
+				->idComponents([...$commonProperties->coralIdPrefixes, "_coral_fan"])
+				->properties([
+					new ValueFromIntProperty(StateNames::CORAL_FAN_DIRECTION, ValueMappings::getInstance()->coralAxis, fn(FloorCoralFan $b) => $b->getAxis(), fn(FloorCoralFan $b, int $v) => $b->setAxis($v))
+				])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::WALL_CORAL_FAN())
-			->idComponents([...$commonProperties->coralIdPrefixes, "_coral_wall_fan"])
-			->properties([
-				new ValueFromIntProperty(StateNames::CORAL_DIRECTION, ValueMappings::getInstance()->horizontalFacingCoral, fn(HorizontalFacing $b) => $b->getFacing(), fn(HorizontalFacing $b, int $v) => $b->setFacing($v)),
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::WALL_CORAL_FAN())
+				->idComponents([...$commonProperties->coralIdPrefixes, "_coral_wall_fan"])
+				->properties([
+					new ValueFromIntProperty(StateNames::CORAL_DIRECTION, ValueMappings::getInstance()->horizontalFacingCoral, fn(HorizontalFacing $b) => $b->getFacing(), fn(HorizontalFacing $b, int $v) => $b->setFacing($v)),
+				])
 		);
 	}
 
 	private static function registerCopperMappings(BlockSerializerDeserializerRegistrar $reg, CommonProperties $commonProperties) : void{
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER_BULB())
-			->idComponents([...$commonProperties->copperIdPrefixes, "copper_bulb"])
-			->properties([
-				$commonProperties->lit,
-				new BoolProperty(StateNames::POWERED_BIT, fn(PoweredByRedstone $b) => $b->isPowered(), fn(PoweredByRedstone $b, bool $v) => $b->setPowered($v)),
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::COPPER_BULB())
+				->idComponents([...$commonProperties->copperIdPrefixes, "copper_bulb"])
+				->properties([
+					$commonProperties->lit,
+					new BoolProperty(StateNames::POWERED_BIT, fn(PoweredByRedstone $b) => $b->isPowered(), fn(PoweredByRedstone $b, bool $v) => $b->setPowered($v)),
+				])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER())
-			->idComponents([
-				...$commonProperties->copperIdPrefixes,
-				"copper",
-				//HACK: the non-waxed, non-oxidised variant has a _block suffix, but none of the others do
-				new BoolFromStringProperty("bruhhhh", "", "_block", fn(Copper $b) => !$b->isWaxed() && $b->getOxidation() === CopperOxidation::NONE, fn() => null)
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::COPPER())
+				->idComponents([
+					...$commonProperties->copperIdPrefixes,
+					"copper",
+					//HACK: the non-waxed, non-oxidised variant has a _block suffix, but none of the others do
+					new BoolFromStringProperty("bruhhhh", "", "_block", fn(Copper $b) => !$b->isWaxed() && $b->getOxidation() === CopperOxidation::NONE, fn() => null)
+				])
 		);
 		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CHISELED_COPPER())->idComponents([...$commonProperties->copperIdPrefixes, "chiseled_copper"]));
 		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER_GRATE())->idComponents([...$commonProperties->copperIdPrefixes, "copper_grate"]));
 		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CUT_COPPER())->idComponents([...$commonProperties->copperIdPrefixes, "cut_copper"]));
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CUT_COPPER_STAIRS())
-			->idComponents([...$commonProperties->copperIdPrefixes, "cut_copper_stairs"])
-			->properties($commonProperties->stairProperties)
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::CUT_COPPER_STAIRS())
+				->idComponents([...$commonProperties->copperIdPrefixes, "cut_copper_stairs"])
+				->properties($commonProperties->stairProperties)
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER_TRAPDOOR())
-			->idComponents([...$commonProperties->copperIdPrefixes, "copper_trapdoor"])
-			->properties($commonProperties->trapdoorProperties)
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::COPPER_TRAPDOOR())
+				->idComponents([...$commonProperties->copperIdPrefixes, "copper_trapdoor"])
+				->properties($commonProperties->trapdoorProperties)
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER_DOOR())
-			->idComponents([...$commonProperties->copperIdPrefixes, "copper_door"])
-			->properties($commonProperties->doorProperties)
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::COPPER_DOOR())
+				->idComponents([...$commonProperties->copperIdPrefixes, "copper_door"])
+				->properties($commonProperties->doorProperties)
 		);
 
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CUT_COPPER_SLAB())
-			->idComponents([
-				...$commonProperties->copperIdPrefixes,
-				$commonProperties->slabIdInfix,
-				"cut_copper_slab"
-			])
-			->properties([$commonProperties->slabPositionProperty])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::CUT_COPPER_SLAB())
+				->idComponents([
+					...$commonProperties->copperIdPrefixes,
+					$commonProperties->slabIdInfix,
+					"cut_copper_slab"
+				])
+				->properties([$commonProperties->slabPositionProperty])
 		);
 
 		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER_BARS())->idComponents([...$commonProperties->copperIdPrefixes, "copper_bars"])->properties($commonProperties->horizontalConnectionProperties));
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER_CHAIN())
-			->idComponents([...$commonProperties->copperIdPrefixes, "copper_chain"])
-			->properties([$commonProperties->pillarAxis])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::COPPER_CHAIN())
+				->idComponents([...$commonProperties->copperIdPrefixes, "copper_chain"])
+				->properties([$commonProperties->pillarAxis])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::COPPER_LANTERN())
-			->idComponents([...$commonProperties->copperIdPrefixes, "copper_lantern"])
-			->properties([
-				new BoolProperty(StateNames::HANGING, fn(CopperLantern $b) => $b->isHanging(), fn(CopperLantern $b, bool $v) => $b->setHanging($v))
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::COPPER_LANTERN())
+				->idComponents([...$commonProperties->copperIdPrefixes, "copper_lantern"])
+				->properties([
+					new BoolProperty(StateNames::HANGING, fn(CopperLantern $b) => $b->isHanging(), fn(CopperLantern $b, bool $v) => $b->setHanging($v))
+				])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::LIGHTNING_ROD())
-			->idComponents([...$commonProperties->copperIdPrefixes, "lightning_rod"])
-			->properties([
-				$commonProperties->anyFacingClassic,
-				new DummyProperty(StateNames::POWERED_BIT, false) //TODO
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::LIGHTNING_ROD())
+				->idComponents([...$commonProperties->copperIdPrefixes, "lightning_rod"])
+				->properties([
+					$commonProperties->anyFacingClassic,
+					new DummyProperty(StateNames::POWERED_BIT, false) //TODO
+				])
 		);
 	}
 
 	private static function registerFlattenedEnumMappings(BlockSerializerDeserializerRegistrar $reg, CommonProperties $commonProperties) : void{
 		//A
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::ANVIL())
-			->idComponents([
-				new ValueFromStringProperty("id", IntFromRawStateMap::string([
-					0 => Ids::ANVIL,
-					1 => Ids::CHIPPED_ANVIL,
-					2 => Ids::DAMAGED_ANVIL,
-				]), fn(Anvil $b) => $b->getDamage(), fn(Anvil $b, int $v) => $b->setDamage($v))
-			])
-			->properties([$commonProperties->horizontalFacingCardinal])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::ANVIL())
+				->idComponents([
+					new ValueFromStringProperty("id", IntFromRawStateMap::string([
+						0 => Ids::ANVIL,
+						1 => Ids::CHIPPED_ANVIL,
+						2 => Ids::DAMAGED_ANVIL,
+					]), fn(Anvil $b) => $b->getDamage(), fn(Anvil $b, int $v) => $b->setDamage($v))
+				])
+				->properties([$commonProperties->horizontalFacingCardinal])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::AMETHYST_CLUSTER())
-			->idComponents([
-				new ValueFromStringProperty("id", IntFromRawStateMap::string([
-					AmethystCluster::STAGE_SMALL_BUD => Ids::SMALL_AMETHYST_BUD,
-					AmethystCluster::STAGE_MEDIUM_BUD => Ids::MEDIUM_AMETHYST_BUD,
-					AmethystCluster::STAGE_LARGE_BUD => Ids::LARGE_AMETHYST_BUD,
-					AmethystCluster::STAGE_CLUSTER => Ids::AMETHYST_CLUSTER
-				]), fn(AmethystCluster $b) => $b->getStage(), fn(AmethystCluster $b, int $v) => $b->setStage($v))
-			])
-			->properties([$commonProperties->blockFace])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::AMETHYST_CLUSTER())
+				->idComponents([
+					new ValueFromStringProperty("id", IntFromRawStateMap::string([
+						AmethystCluster::STAGE_SMALL_BUD => Ids::SMALL_AMETHYST_BUD,
+						AmethystCluster::STAGE_MEDIUM_BUD => Ids::MEDIUM_AMETHYST_BUD,
+						AmethystCluster::STAGE_LARGE_BUD => Ids::LARGE_AMETHYST_BUD,
+						AmethystCluster::STAGE_CLUSTER => Ids::AMETHYST_CLUSTER
+					]), fn(AmethystCluster $b) => $b->getStage(), fn(AmethystCluster $b, int $v) => $b->setStage($v))
+				])
+				->properties([$commonProperties->blockFace])
 		);
 
 		//C
 		//This one is a special offender :<
 		//I have no idea why this only has 3 IDs - there are 4 in Java and 4 visually distinct states in Bedrock
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::CAVE_VINES())
-			->idComponents([
-				"minecraft:cave_vines",
-				new ValueFromStringProperty(
-					"variant",
-					EnumFromRawStateMap::string(FlattenedCaveVinesVariant::class, fn(FlattenedCaveVinesVariant $case) => $case->value),
-					fn(CaveVines $b) => $b->hasBerries() ?
-						($b->isHead() ?
-							FlattenedCaveVinesVariant::HEAD_WITH_BERRIES :
-							FlattenedCaveVinesVariant::BODY_WITH_BERRIES) :
-						FlattenedCaveVinesVariant::NO_BERRIES,
-					fn(CaveVines $b, FlattenedCaveVinesVariant $v) => match($v){
-						FlattenedCaveVinesVariant::HEAD_WITH_BERRIES => $b->setBerries(true)->setHead(true),
-						FlattenedCaveVinesVariant::BODY_WITH_BERRIES => $b->setBerries(true)->setHead(false),
-						FlattenedCaveVinesVariant::NO_BERRIES => $b->setBerries(false)->setHead(false), //assume this isn't a head, since we don't have enough information
-					}
-				)
-			])
-			->properties([
-				new IntProperty(StateNames::GROWING_PLANT_AGE, 0, 25, fn(CaveVines $b) => $b->getAge(), fn(CaveVines $b, int $v) => $b->setAge($v)),
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::CAVE_VINES())
+				->idComponents([
+					"minecraft:cave_vines",
+					new ValueFromStringProperty(
+						"variant",
+						EnumFromRawStateMap::string(FlattenedCaveVinesVariant::class, fn(FlattenedCaveVinesVariant $case) => $case->value),
+						fn(CaveVines $b) => $b->hasBerries() ?
+							($b->isHead() ?
+								FlattenedCaveVinesVariant::HEAD_WITH_BERRIES :
+								FlattenedCaveVinesVariant::BODY_WITH_BERRIES) :
+							FlattenedCaveVinesVariant::NO_BERRIES,
+						fn(CaveVines $b, FlattenedCaveVinesVariant $v) => match ($v) {
+							FlattenedCaveVinesVariant::HEAD_WITH_BERRIES => $b->setBerries(true)->setHead(true),
+							FlattenedCaveVinesVariant::BODY_WITH_BERRIES => $b->setBerries(true)->setHead(false),
+							FlattenedCaveVinesVariant::NO_BERRIES => $b->setBerries(false)->setHead(false), //assume this isn't a head, since we don't have enough information
+						}
+					)
+				])
+				->properties([
+					new IntProperty(StateNames::GROWING_PLANT_AGE, 0, 25, fn(CaveVines $b) => $b->getAge(), fn(CaveVines $b, int $v) => $b->setAge($v)),
+				])
 		);
 
 		//D
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::DIRT())
-			->idComponents([
-				new ValueFromStringProperty("id", EnumFromRawStateMap::string(DirtType::class, fn(DirtType $case) => match ($case) {
-					DirtType::NORMAL => Ids::DIRT,
-					DirtType::COARSE => Ids::COARSE_DIRT,
-					DirtType::ROOTED => Ids::DIRT_WITH_ROOTS,
-				}), fn(Dirt $b) => $b->getDirtType(), fn(Dirt $b, DirtType $v) => $b->setDirtType($v))
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::DIRT())
+				->idComponents([
+					new ValueFromStringProperty("id", EnumFromRawStateMap::string(DirtType::class, fn(DirtType $case) => match ($case) {
+						DirtType::NORMAL => Ids::DIRT,
+						DirtType::COARSE => Ids::COARSE_DIRT,
+						DirtType::ROOTED => Ids::DIRT_WITH_ROOTS,
+					}), fn(Dirt $b) => $b->getDirtType(), fn(Dirt $b, DirtType $v) => $b->setDirtType($v))
+				])
 		);
 
 		//F
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::FROGLIGHT())
-			->idComponents([
-				new ValueFromStringProperty("id", ValueMappings::getInstance()->froglightType, fn(Froglight $b) => $b->getFroglightType(), fn(Froglight $b, FroglightType $v) => $b->setFroglightType($v)),
-			])
-			->properties([$commonProperties->pillarAxis])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::FROGLIGHT())
+				->idComponents([
+					new ValueFromStringProperty("id", ValueMappings::getInstance()->froglightType, fn(Froglight $b) => $b->getFroglightType(), fn(Froglight $b, FroglightType $v) => $b->setFroglightType($v)),
+				])
+				->properties([$commonProperties->pillarAxis])
 		);
 
 		//L
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::LIGHT())
-			->idComponents([
-				"minecraft:light_block_",
-				//this is a bit shit but it's easier than adapting IntProperty to support flattening :D
-				new ValueFromStringProperty(
-					"light_level",
-					IntFromRawStateMap::string(array_map(strval(...), range(0, 15))),
-					fn(Light $b) => $b->getLightLevel(),
-					fn(Light $b, int $v) => $b->setLightLevel($v)
-				)
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::LIGHT())
+				->idComponents([
+					"minecraft:light_block_",
+					//this is a bit shit but it's easier than adapting IntProperty to support flattening :D
+					new ValueFromStringProperty(
+						"light_level",
+						IntFromRawStateMap::string(array_map(strval(...), range(0, 15))),
+						fn(Light $b) => $b->getLightLevel(),
+						fn(Light $b, int $v) => $b->setLightLevel($v)
+					)
+				])
 		);
 
 		//M
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::MOB_HEAD())
-			->idComponents([
-				new ValueFromStringProperty("id", ValueMappings::getInstance()->mobHeadType, fn(MobHead $b) => $b->getMobHeadType(), fn(MobHead $b, MobHeadType $v) => $b->setMobHeadType($v)),
-			])
-			->properties([
-				new ValueFromIntProperty(StateNames::FACING_DIRECTION, ValueMappings::getInstance()->facingExceptDown, fn(MobHead $b) => $b->getFacing(), fn(MobHead $b, int $v) => $b->setFacing($v))
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::MOB_HEAD())
+				->idComponents([
+					new ValueFromStringProperty("id", ValueMappings::getInstance()->mobHeadType, fn(MobHead $b) => $b->getMobHeadType(), fn(MobHead $b, MobHeadType $v) => $b->setMobHeadType($v)),
+				])
+				->properties([
+					new ValueFromIntProperty(StateNames::FACING_DIRECTION, ValueMappings::getInstance()->facingExceptDown, fn(MobHead $b) => $b->getFacing(), fn(MobHead $b, int $v) => $b->setFacing($v))
+				])
 		);
 
 		foreach([
 			[Blocks::LAVA(), "lava"],
 			[Blocks::WATER(), "water"]
 		] as [$block, $idSuffix]){
-			$reg->mapFlattenedId(FlattenedIdModel::create($block)
-				->idComponents([...$commonProperties->liquidIdPrefixes, $idSuffix])
-				->properties([$commonProperties->liquidData])
+			$reg->mapFlattenedId(
+				FlattenedIdModel::create($block)
+					->idComponents([...$commonProperties->liquidIdPrefixes, $idSuffix])
+					->properties([$commonProperties->liquidData])
 			);
 		}
 	}
@@ -814,9 +841,10 @@ final class VanillaBlockMappings{
 			[Blocks::FURNACE(), "furnace"],
 			[Blocks::SMOKER(), "smoker"]
 		] as [$block, $idSuffix]){
-			$reg->mapFlattenedId(FlattenedIdModel::create($block)
-				->idComponents([...$commonProperties->furnaceIdPrefixes, $idSuffix])
-				->properties([$commonProperties->horizontalFacingCardinal])
+			$reg->mapFlattenedId(
+				FlattenedIdModel::create($block)
+					->idComponents([...$commonProperties->furnaceIdPrefixes, $idSuffix])
+					->properties([$commonProperties->horizontalFacingCardinal])
 			);
 		}
 
@@ -828,60 +856,65 @@ final class VanillaBlockMappings{
 			$reg->mapFlattenedId(FlattenedIdModel::create($block)->idComponents(["minecraft:", $commonProperties->litIdInfix, $idSuffix]));
 		}
 
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::DAYLIGHT_SENSOR())
-			->idComponents([
-				"minecraft:daylight_detector",
-				new BoolFromStringProperty("inverted", "", "_inverted", fn(DaylightSensor $b) => $b->isInverted(), fn(DaylightSensor $b, bool $v) => $b->setInverted($v))
-			])
-			->properties([$commonProperties->analogRedstoneSignal])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::DAYLIGHT_SENSOR())
+				->idComponents([
+					"minecraft:daylight_detector",
+					new BoolFromStringProperty("inverted", "", "_inverted", fn(DaylightSensor $b) => $b->isInverted(), fn(DaylightSensor $b, bool $v) => $b->setInverted($v))
+				])
+				->properties([$commonProperties->analogRedstoneSignal])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::REDSTONE_REPEATER())
-			->idComponents([
-				"minecraft:",
-				new BoolFromStringProperty("powered", "un", "", fn(RedstoneRepeater $b) => $b->isPowered(), fn(RedstoneRepeater $b, bool $v) => $b->setPowered($v)),
-				"powered_repeater"
-			])
-			->properties([
-				$commonProperties->horizontalFacingCardinal,
-				new IntProperty(StateNames::REPEATER_DELAY, 0, 3, fn(RedstoneRepeater $b) => $b->getDelay(), fn(RedstoneRepeater $b, int $v) => $b->setDelay($v), offset: 1),
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::REDSTONE_REPEATER())
+				->idComponents([
+					"minecraft:",
+					new BoolFromStringProperty("powered", "un", "", fn(RedstoneRepeater $b) => $b->isPowered(), fn(RedstoneRepeater $b, bool $v) => $b->setPowered($v)),
+					"powered_repeater"
+				])
+				->properties([
+					$commonProperties->horizontalFacingCardinal,
+					new IntProperty(StateNames::REPEATER_DELAY, 0, 3, fn(RedstoneRepeater $b) => $b->getDelay(), fn(RedstoneRepeater $b, int $v) => $b->setDelay($v), offset: 1),
+				])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::REDSTONE_COMPARATOR())
-			->idComponents([
-				"minecraft:",
-				//this property also appears in the state, so we ignore it in the ID
-				//this is baked here purely to keep minecraft happy
-				new BoolFromStringProperty("dummy_powered", "un", "", fn(RedstoneComparator $b) => $b->isPowered(), fn() => null),
-				"powered_comparator"
-			])
-			->properties([
-				$commonProperties->horizontalFacingCardinal,
-				new BoolProperty(StateNames::OUTPUT_LIT_BIT, fn(RedstoneComparator $b) => $b->isPowered(), fn(RedstoneComparator $b, bool $v) => $b->setPowered($v)),
-				new BoolProperty(StateNames::OUTPUT_SUBTRACT_BIT, fn(RedstoneComparator $b) => $b->isSubtractMode(), fn(RedstoneComparator $b, bool $v) => $b->setSubtractMode($v)),
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::REDSTONE_COMPARATOR())
+				->idComponents([
+					"minecraft:",
+					//this property also appears in the state, so we ignore it in the ID
+					//this is baked here purely to keep minecraft happy
+					new BoolFromStringProperty("dummy_powered", "un", "", fn(RedstoneComparator $b) => $b->isPowered(), fn() => null),
+					"powered_comparator"
+				])
+				->properties([
+					$commonProperties->horizontalFacingCardinal,
+					new BoolProperty(StateNames::OUTPUT_LIT_BIT, fn(RedstoneComparator $b) => $b->isPowered(), fn(RedstoneComparator $b, bool $v) => $b->setPowered($v)),
+					new BoolProperty(StateNames::OUTPUT_SUBTRACT_BIT, fn(RedstoneComparator $b) => $b->isSubtractMode(), fn(RedstoneComparator $b, bool $v) => $b->setSubtractMode($v)),
+				])
 		);
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::REDSTONE_TORCH())
-			->idComponents([
-				"minecraft:",
-				new BoolFromStringProperty("lit", "unlit_", "", fn(RedstoneTorch $b) => $b->isLit(), fn(RedstoneTorch $b, bool $v) => $b->setLit($v)),
-				"redstone_torch"
-			])
-			->properties([$commonProperties->torchFacing])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::REDSTONE_TORCH())
+				->idComponents([
+					"minecraft:",
+					new BoolFromStringProperty("lit", "unlit_", "", fn(RedstoneTorch $b) => $b->isLit(), fn(RedstoneTorch $b, bool $v) => $b->setLit($v)),
+					"redstone_torch"
+				])
+				->properties([$commonProperties->torchFacing])
 		);
 		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::SPONGE())->idComponents([
 			"minecraft:",
 			new BoolFromStringProperty("wet", "", "wet_", fn(Sponge $b) => $b->isWet(), fn(Sponge $b, bool $v) => $b->setWet($v)),
 			"sponge"
 		]));
-		$reg->mapFlattenedId(FlattenedIdModel::create(Blocks::TNT())
-			->idComponents([
-				"minecraft:",
-				new BoolFromStringProperty("underwater", "", "underwater_", fn(TNT $b) => $b->worksUnderwater(), fn(TNT $b, bool $v) => $b->setWorksUnderwater($v)),
-				"tnt"
-			])
-			->properties([
-				new BoolProperty(StateNames::EXPLODE_BIT, fn(TNT $b) => $b->isUnstable(), fn(TNT $b, bool $v) => $b->setUnstable($v)),
-			])
+		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::TNT())
+				->idComponents([
+					"minecraft:",
+					new BoolFromStringProperty("underwater", "", "underwater_", fn(TNT $b) => $b->worksUnderwater(), fn(TNT $b, bool $v) => $b->setWorksUnderwater($v)),
+					"tnt"
+				])
+				->properties([
+					new BoolProperty(StateNames::EXPLODE_BIT, fn(TNT $b) => $b->isUnstable(), fn(TNT $b, bool $v) => $b->setUnstable($v)),
+				])
 		);
 	}
 
@@ -1033,6 +1066,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_BUTTON(), Ids::MANGROVE_BUTTON],
 			[Blocks::OAK_BUTTON(), Ids::WOODEN_BUTTON],
 			[Blocks::PALE_OAK_BUTTON(), Ids::PALE_OAK_BUTTON],
+			[Blocks::POPLAR_BUTTON(), Ids::POPLAR_BUTTON],
 			[Blocks::SPRUCE_BUTTON(), Ids::SPRUCE_BUTTON],
 			[Blocks::WARPED_BUTTON(), Ids::WARPED_BUTTON]
 		] as [$block, $id]){
@@ -1051,6 +1085,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_DOOR(), Ids::MANGROVE_DOOR],
 			[Blocks::OAK_DOOR(), Ids::WOODEN_DOOR],
 			[Blocks::PALE_OAK_DOOR(), Ids::PALE_OAK_DOOR],
+			[Blocks::POPLAR_DOOR(), Ids::POPLAR_DOOR],
 			[Blocks::SPRUCE_DOOR(), Ids::SPRUCE_DOOR],
 			[Blocks::WARPED_DOOR(), Ids::WARPED_DOOR]
 		] as [$block, $id]){
@@ -1068,6 +1103,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_FENCE(), Ids::MANGROVE_FENCE],
 			[Blocks::OAK_FENCE(), Ids::OAK_FENCE],
 			[Blocks::PALE_OAK_FENCE(), Ids::PALE_OAK_FENCE],
+			[Blocks::POPLAR_FENCE(), Ids::POPLAR_FENCE],
 			[Blocks::SPRUCE_FENCE(), Ids::SPRUCE_FENCE],
 			[Blocks::CRIMSON_FENCE(), Ids::CRIMSON_FENCE],
 			[Blocks::WARPED_FENCE(), Ids::WARPED_FENCE]
@@ -1085,6 +1121,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_FENCE_GATE(), Ids::MANGROVE_FENCE_GATE],
 			[Blocks::OAK_FENCE_GATE(), Ids::FENCE_GATE],
 			[Blocks::PALE_OAK_FENCE_GATE(), Ids::PALE_OAK_FENCE_GATE],
+			[Blocks::POPLAR_FENCE_GATE(), Ids::POPLAR_FENCE_GATE],
 			[Blocks::SPRUCE_FENCE_GATE(), Ids::SPRUCE_FENCE_GATE],
 			[Blocks::CRIMSON_FENCE_GATE(), Ids::CRIMSON_FENCE_GATE],
 			[Blocks::WARPED_FENCE_GATE(), Ids::WARPED_FENCE_GATE]
@@ -1102,6 +1139,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_SIGN(), Ids::MANGROVE_STANDING_SIGN],
 			[Blocks::OAK_SIGN(), Ids::STANDING_SIGN],
 			[Blocks::PALE_OAK_SIGN(), Ids::PALE_OAK_STANDING_SIGN],
+			[Blocks::POPLAR_SIGN(), Ids::POPLAR_STANDING_SIGN],
 			[Blocks::SPRUCE_SIGN(), Ids::SPRUCE_STANDING_SIGN],
 			[Blocks::CRIMSON_SIGN(), Ids::CRIMSON_STANDING_SIGN],
 			[Blocks::WARPED_SIGN(), Ids::WARPED_STANDING_SIGN]
@@ -1119,6 +1157,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_LOG(), "mangrove_log"],
 			[Blocks::OAK_LOG(), "oak_log"],
 			[Blocks::PALE_OAK_LOG(), "pale_oak_log"],
+			[Blocks::POPLAR_LOG(), "poplar_log"],
 			[Blocks::SPRUCE_LOG(), "spruce_log"],
 			[Blocks::CRIMSON_STEM(), "crimson_stem"],
 			[Blocks::WARPED_STEM(), "warped_stem"],
@@ -1132,6 +1171,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_WOOD(), "mangrove_wood"],
 			[Blocks::OAK_WOOD(), "oak_wood"],
 			[Blocks::PALE_OAK_WOOD(), "pale_oak_wood"],
+			[Blocks::POPLAR_WOOD(), "poplar_wood"],
 			[Blocks::SPRUCE_WOOD(), "spruce_wood"],
 			[Blocks::CRIMSON_HYPHAE(), "crimson_hyphae"],
 			[Blocks::WARPED_HYPHAE(), "warped_hyphae"],
@@ -1139,9 +1179,10 @@ final class VanillaBlockMappings{
 			//bamboo is a special cookie - its name differs and there's no all-sided variant
 			[Blocks::BAMBOO_BLOCK(), "bamboo_block"],
 		] as [$block, $idSuffix]){
-			$reg->mapFlattenedId(FlattenedIdModel::create($block)
-				->idComponents([...$commonProperties->woodIdPrefixes, $idSuffix])
-				->properties([$commonProperties->pillarAxis])
+			$reg->mapFlattenedId(
+				FlattenedIdModel::create($block)
+					->idComponents([...$commonProperties->woodIdPrefixes, $idSuffix])
+					->properties([$commonProperties->pillarAxis])
 			);
 		}
 
@@ -1157,6 +1198,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_PLANKS(), Ids::MANGROVE_PLANKS],
 			[Blocks::OAK_PLANKS(), Ids::OAK_PLANKS],
 			[Blocks::PALE_OAK_PLANKS(), Ids::PALE_OAK_PLANKS],
+			[Blocks::POPLAR_PLANKS(), Ids::POPLAR_PLANKS],
 			[Blocks::SPRUCE_PLANKS(), Ids::SPRUCE_PLANKS],
 			[Blocks::CRIMSON_PLANKS(), Ids::CRIMSON_PLANKS],
 			[Blocks::WARPED_PLANKS(), Ids::WARPED_PLANKS]
@@ -1175,6 +1217,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_PRESSURE_PLATE(), Ids::MANGROVE_PRESSURE_PLATE],
 			[Blocks::OAK_PRESSURE_PLATE(), Ids::WOODEN_PRESSURE_PLATE],
 			[Blocks::PALE_OAK_PRESSURE_PLATE(), Ids::PALE_OAK_PRESSURE_PLATE],
+			[Blocks::POPLAR_PRESSURE_PLATE(), Ids::POPLAR_PRESSURE_PLATE],
 			[Blocks::SPRUCE_PRESSURE_PLATE(), Ids::SPRUCE_PRESSURE_PLATE],
 			[Blocks::CRIMSON_PRESSURE_PLATE(), Ids::CRIMSON_PRESSURE_PLATE],
 			[Blocks::WARPED_PRESSURE_PLATE(), Ids::WARPED_PRESSURE_PLATE]
@@ -1194,6 +1237,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_SLAB(), "mangrove"],
 			[Blocks::OAK_SLAB(), "oak"],
 			[Blocks::PALE_OAK_SLAB(), "pale_oak"],
+			[Blocks::POPLAR_SLAB(), "poplar"],
 			[Blocks::SPRUCE_SLAB(), "spruce"],
 			[Blocks::CRIMSON_SLAB(), "crimson"],
 			[Blocks::WARPED_SLAB(), "warped"]
@@ -1213,6 +1257,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_STAIRS(), Ids::MANGROVE_STAIRS],
 			[Blocks::OAK_STAIRS(), Ids::OAK_STAIRS],
 			[Blocks::PALE_OAK_STAIRS(), Ids::PALE_OAK_STAIRS],
+			[Blocks::POPLAR_STAIRS(), Ids::POPLAR_STAIRS],
 			[Blocks::SPRUCE_STAIRS(), Ids::SPRUCE_STAIRS],
 			[Blocks::CRIMSON_STAIRS(), Ids::CRIMSON_STAIRS],
 			[Blocks::WARPED_STAIRS(), Ids::WARPED_STAIRS]
@@ -1231,6 +1276,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_TRAPDOOR(), Ids::MANGROVE_TRAPDOOR],
 			[Blocks::OAK_TRAPDOOR(), Ids::TRAPDOOR],
 			[Blocks::PALE_OAK_TRAPDOOR(), Ids::PALE_OAK_TRAPDOOR],
+			[Blocks::POPLAR_TRAPDOOR(), Ids::POPLAR_TRAPDOOR],
 			[Blocks::SPRUCE_TRAPDOOR(), Ids::SPRUCE_TRAPDOOR],
 			[Blocks::CRIMSON_TRAPDOOR(), Ids::CRIMSON_TRAPDOOR],
 			[Blocks::WARPED_TRAPDOOR(), Ids::WARPED_TRAPDOOR]
@@ -1249,6 +1295,7 @@ final class VanillaBlockMappings{
 			[Blocks::MANGROVE_WALL_SIGN(), Ids::MANGROVE_WALL_SIGN],
 			[Blocks::OAK_WALL_SIGN(), Ids::WALL_SIGN],
 			[Blocks::PALE_OAK_WALL_SIGN(), Ids::PALE_OAK_WALL_SIGN],
+			[Blocks::POPLAR_WALL_SIGN(), Ids::POPLAR_WALL_SIGN],
 			[Blocks::SPRUCE_WALL_SIGN(), Ids::SPRUCE_WALL_SIGN],
 			[Blocks::CRIMSON_WALL_SIGN(), Ids::CRIMSON_WALL_SIGN],
 			[Blocks::WARPED_WALL_SIGN(), Ids::WARPED_WALL_SIGN]
@@ -1346,7 +1393,7 @@ final class VanillaBlockMappings{
 			$commonProperties->horizontalFacingSWNE,
 			new ValueSetFromIntProperty(
 				StateNames::BOOKS_STORED,
-				EnumFromRawStateMap::int(ChiseledBookshelfSlot::class, fn(ChiseledBookshelfSlot $case) => match($case){
+				EnumFromRawStateMap::int(ChiseledBookshelfSlot::class, fn(ChiseledBookshelfSlot $case) => match ($case) {
 					//these are (currently) the same as the internal values, but it's best not to rely on those in case Mojang mess with the flags
 					ChiseledBookshelfSlot::TOP_LEFT => 1 << 0,
 					ChiseledBookshelfSlot::TOP_MIDDLE => 1 << 1,
@@ -1513,6 +1560,11 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::STONECUTTER(), Ids::STONECUTTER_BLOCK)->properties([
 			$commonProperties->horizontalFacingCardinal
 		]));
+		$reg->mapModel(Model::create(Blocks::STRAW_BED(), Ids::STRAW_BED)->properties([
+			new BoolProperty(StateNames::HEAD_PIECE_BIT, fn(StrawBed $b) => $b->isHeadPart(), fn(StrawBed $b, bool $v) => $b->setHead($v)),
+			new BoolProperty(StateNames::OCCUPIED_BIT, fn(StrawBed $b) => $b->isOccupied(), fn(StrawBed $b, bool $v) => $b->setOccupied($v)),
+			$commonProperties->horizontalFacingCardinal
+		]));
 		$reg->mapModel(Model::create(Blocks::SUGARCANE(), Ids::REEDS)->properties([
 			new IntProperty(StateNames::AGE, 0, 15, fn(Sugarcane $b) => $b->getAge(), fn(Sugarcane $b, int $v) => $b->setAge($v))
 		]));
@@ -1548,35 +1600,6 @@ final class VanillaBlockMappings{
 	}
 
 	/**
-	 * @phpstan-template TBlock of Block
-	 * @phpstan-param Model<TBlock> $model
-	 */
-	private static function mapAsymmetricSerializer(BlockSerializerDeserializerRegistrar $reg, Model $model) : void{
-		$id = $model->getId();
-		$properties = $model->getProperties();
-		$reg->serializer->map($model->getBlock(), function(Block $block) use ($id, $properties) : Writer{
-			$writer = new Writer($id);
-			foreach($properties as $property){
-				$property->serialize($block, $writer);
-			}
-			return $writer;
-		});
-	}
-
-	/**
-	 * @phpstan-template TBlock of Block
-	 * @phpstan-param Model<TBlock> $model
-	 * @phpstan-return TBlock
-	 */
-	private static function deserializeAsymmetric(Model $model, Reader $in) : Block{
-		$block = clone $model->getBlock();
-		foreach($model->getProperties() as $property){
-			$property->deserialize($block, $in);
-		}
-		return $block;
-	}
-
-	/**
 	 * All mappings that still use the split form of serializer/deserializer registration
 	 * This is typically only used by blocks with one ID but multiple PM types (split by property)
 	 * These currently can't be registered in a unified way, and due to their small number it may not be worth the
@@ -1596,9 +1619,11 @@ final class VanillaBlockMappings{
 		]);
 		self::mapAsymmetricSerializer($reg, $bigDripleafHeadModel);
 		self::mapAsymmetricSerializer($reg, $bigDripleafStemModel);
-		$reg->deserializer->map(Ids::BIG_DRIPLEAF, fn(Reader $in) => $in->readBool(StateNames::BIG_DRIPLEAF_HEAD) ?
-			self::deserializeAsymmetric($bigDripleafHeadModel, $in) :
-			self::deserializeAsymmetric($bigDripleafStemModel, $in)
+		$reg->deserializer->map(
+			Ids::BIG_DRIPLEAF,
+			fn(Reader $in) => $in->readBool(StateNames::BIG_DRIPLEAF_HEAD) ?
+				self::deserializeAsymmetric($bigDripleafHeadModel, $in) :
+				self::deserializeAsymmetric($bigDripleafStemModel, $in)
 		);
 
 		$fillLevelProperty = new IntProperty(StateNames::FILL_LEVEL, 1, 6, fn(FillableCauldron $b) => $b->getFillLevel(), fn(FillableCauldron $b, int $v) => $b->setFillLevel($v));
@@ -1621,14 +1646,16 @@ final class VanillaBlockMappings{
 		self::mapAsymmetricSerializer($reg, $lavaCauldronModel);
 		self::mapAsymmetricSerializer($reg, $waterCauldronModel);
 		self::mapAsymmetricSerializer($reg, $emptyCauldronModel);
-		$reg->deserializer->map(Ids::CAULDRON, fn(Reader $in) => $in->readInt(StateNames::FILL_LEVEL) === 0 ?
-			self::deserializeAsymmetric($emptyCauldronModel, $in) :
-			match ($liquid = $in->readString(StateNames::CAULDRON_LIQUID)) {
-				StringValues::CAULDRON_LIQUID_WATER => self::deserializeAsymmetric($waterCauldronModel, $in),
-				StringValues::CAULDRON_LIQUID_LAVA => self::deserializeAsymmetric($lavaCauldronModel, $in),
-				StringValues::CAULDRON_LIQUID_POWDER_SNOW => throw new UnsupportedBlockStateException("Powder snow is not supported yet"),
-				default => throw $in->badValueException(StateNames::CAULDRON_LIQUID, $liquid)
-			}
+		$reg->deserializer->map(
+			Ids::CAULDRON,
+			fn(Reader $in) => $in->readInt(StateNames::FILL_LEVEL) === 0 ?
+				self::deserializeAsymmetric($emptyCauldronModel, $in) :
+				match ($liquid = $in->readString(StateNames::CAULDRON_LIQUID)) {
+					StringValues::CAULDRON_LIQUID_WATER => self::deserializeAsymmetric($waterCauldronModel, $in),
+					StringValues::CAULDRON_LIQUID_LAVA => self::deserializeAsymmetric($lavaCauldronModel, $in),
+					StringValues::CAULDRON_LIQUID_POWDER_SNOW => throw new UnsupportedBlockStateException("Powder snow is not supported yet"),
+					default => throw $in->badValueException(StateNames::CAULDRON_LIQUID, $liquid)
+				}
 		);
 
 		//mushroom stems, split for consistency with all-sided logs vs normal logs
@@ -1662,12 +1689,15 @@ final class VanillaBlockMappings{
 		]);
 		self::mapAsymmetricSerializer($reg, $pitcherCropModel);
 		self::mapAsymmetricSerializer($reg, $doublePitcherCropModel);
-		$reg->deserializer->map(Ids::PITCHER_CROP, fn(Reader $in) => $in->readInt(StateNames::GROWTH) <= PitcherCrop::MAX_AGE ?
-			($in->readBool(StateNames::UPPER_BLOCK_BIT) ?
-				//top pitcher crop with age 0-2 is an invalid state, only the bottom half should exist in this case
-				Blocks::AIR() :
-				self::deserializeAsymmetric($pitcherCropModel, $in)
-			) : self::deserializeAsymmetric($doublePitcherCropModel, $in)
+		$reg->deserializer->map(
+			Ids::PITCHER_CROP,
+			fn(Reader $in) => $in->readInt(StateNames::GROWTH) <= PitcherCrop::MAX_AGE ?
+				(
+				$in->readBool(StateNames::UPPER_BLOCK_BIT) ?
+					//top pitcher crop with age 0-2 is an invalid state, only the bottom half should exist in this case
+					Blocks::AIR() :
+					self::deserializeAsymmetric($pitcherCropModel, $in)
+				) : self::deserializeAsymmetric($doublePitcherCropModel, $in)
 		);
 
 		//these only exist within PM (mapped from tile properties) as they don't support the same properties as a
@@ -1686,6 +1716,7 @@ final class VanillaBlockMappings{
 			Ids::MANGROVE_HANGING_SIGN => [Blocks::MANGROVE_CEILING_CENTER_HANGING_SIGN(), Blocks::MANGROVE_CEILING_EDGES_HANGING_SIGN(), Blocks::MANGROVE_WALL_HANGING_SIGN()],
 			Ids::OAK_HANGING_SIGN => [Blocks::OAK_CEILING_CENTER_HANGING_SIGN(), Blocks::OAK_CEILING_EDGES_HANGING_SIGN(), Blocks::OAK_WALL_HANGING_SIGN()],
 			Ids::PALE_OAK_HANGING_SIGN => [Blocks::PALE_OAK_CEILING_CENTER_HANGING_SIGN(), Blocks::PALE_OAK_CEILING_EDGES_HANGING_SIGN(), Blocks::PALE_OAK_WALL_HANGING_SIGN()],
+			Ids::POPLAR_HANGING_SIGN => [Blocks::POPLAR_CEILING_CENTER_HANGING_SIGN(), Blocks::POPLAR_CEILING_EDGES_HANGING_SIGN(), Blocks::POPLAR_WALL_HANGING_SIGN()],
 			Ids::SPRUCE_HANGING_SIGN => [Blocks::SPRUCE_CEILING_CENTER_HANGING_SIGN(), Blocks::SPRUCE_CEILING_EDGES_HANGING_SIGN(), Blocks::SPRUCE_WALL_HANGING_SIGN()],
 			Ids::WARPED_HANGING_SIGN => [Blocks::WARPED_CEILING_CENTER_HANGING_SIGN(), Blocks::WARPED_CEILING_EDGES_HANGING_SIGN(), Blocks::WARPED_WALL_HANGING_SIGN()],
 		] as $id => [$center, $edges, $wall]){
@@ -1715,7 +1746,8 @@ final class VanillaBlockMappings{
 			self::mapAsymmetricSerializer($reg, $edgesModel);
 			self::mapAsymmetricSerializer($reg, $wallModel);
 			$reg->deserializer->map($id, fn(Reader $in) => $in->readBool(StateNames::HANGING) ?
-				($in->readBool(StateNames::ATTACHED_BIT) ?
+				(
+				$in->readBool(StateNames::ATTACHED_BIT) ?
 					self::deserializeAsymmetric($centerModel, $in) :
 					self::deserializeAsymmetric($edgesModel, $in)
 				) :
@@ -1741,12 +1773,43 @@ final class VanillaBlockMappings{
 		self::mapAsymmetricSerializer($reg, $wetPotentSulfurModel);
 		self::mapAsymmetricSerializer($reg, $continuousPotentSulfurModel);
 		self::mapAsymmetricSerializer($reg, $cyclingPotentSulfurModel);
-		$reg->deserializer->map(Ids::POTENT_SULFUR, fn(Reader $in) => match($state = $in->readString(StateNames::POTENT_SULFUR_STATE)){
+		$reg->deserializer->map(
+			Ids::POTENT_SULFUR,
+			fn(Reader $in) => match ($state = $in->readString(StateNames::POTENT_SULFUR_STATE)) {
 				StringValues::POTENT_SULFUR_STATE_DRY => self::deserializeAsymmetric($dryPotentSulfurModel, $in),
 				StringValues::POTENT_SULFUR_STATE_WET => self::deserializeAsymmetric($wetPotentSulfurModel, $in),
 				StringValues::POTENT_SULFUR_STATE_CONTINUOUS => self::deserializeAsymmetric($continuousPotentSulfurModel, $in),
 				default => self::deserializeAsymmetric($cyclingPotentSulfurModel, $in)
 			}
 		);
+	}
+
+	/**
+	 * @phpstan-template TBlock of Block
+	 * @phpstan-param Model<TBlock> $model
+	 */
+	private static function mapAsymmetricSerializer(BlockSerializerDeserializerRegistrar $reg, Model $model) : void{
+		$id = $model->getId();
+		$properties = $model->getProperties();
+		$reg->serializer->map($model->getBlock(), function(Block $block) use ($id, $properties) : Writer{
+			$writer = new Writer($id);
+			foreach($properties as $property){
+				$property->serialize($block, $writer);
+			}
+			return $writer;
+		});
+	}
+
+	/**
+	 * @phpstan-template TBlock of Block
+	 * @phpstan-param Model<TBlock> $model
+	 * @phpstan-return TBlock
+	 */
+	private static function deserializeAsymmetric(Model $model, Reader $in) : Block{
+		$block = clone $model->getBlock();
+		foreach($model->getProperties() as $property){
+			$property->deserialize($block, $in);
+		}
+		return $block;
 	}
 }
