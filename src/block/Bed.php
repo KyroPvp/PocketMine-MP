@@ -55,7 +55,6 @@ class Bed extends BedBase implements Colored{
 		}
 	}
 
-
 	public function onEntityLand(Entity $entity) : ?float{
 		if($entity instanceof Living && $entity->isSneaking()){
 			return null;
