@@ -784,7 +784,7 @@
         "STONE_PRESSURE_PLATE": 2,
         "STONE_SLAB": 3,
         "STONE_STAIRS": 40,
-        "STRAW_BED": 4,
+        "STRAW_BED": 16,
         "STRUCTURE_VOID": 1,
         "SUGARCANE": 16,
         "SULFUR": 1,

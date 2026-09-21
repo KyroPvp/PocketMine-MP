@@ -27,5 +27,4 @@ class StrawBed extends BedBase{
 	public function getMaxStackSize() : int{
 		return 16;
 	}
-
 }
