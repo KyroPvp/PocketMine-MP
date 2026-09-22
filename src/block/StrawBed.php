@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-class StrawBed extends BedBase{
+class StrawBed extends BaseBed{
 	public function getMaxStackSize() : int{
 		return 16;
 	}

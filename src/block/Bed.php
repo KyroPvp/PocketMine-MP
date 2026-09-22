@@ -30,7 +30,7 @@ use pocketmine\block\utils\DyeColor;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Living;
 
-class Bed extends BedBase implements Colored{
+class Bed extends BaseBed implements Colored{
 	use ColoredTrait;
 
 	public function readStateFromWorld() : Block{

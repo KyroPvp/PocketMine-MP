@@ -37,7 +37,7 @@ use pocketmine\utils\TextFormat;
 use pocketmine\world\BlockTransaction;
 use pocketmine\world\World;
 
-abstract class BedBase extends Transparent implements HorizontalFacing{
+abstract class BaseBed extends Transparent implements HorizontalFacing{
 	use HorizontalFacingTrait;
 
 	protected bool $occupied = false;
@@ -101,9 +101,9 @@ abstract class BedBase extends Transparent implements HorizontalFacing{
 
 	}
 
-	public function getOtherHalf() : ?BedBase{
+	public function getOtherHalf() : ?BaseBed{
 		$other = $this->getSide($this->getOtherHalfSide());
-		if($other instanceof BedBase && $other->head !== $this->head && $other->facing === $this->facing){
+		if($other instanceof BaseBed && $other->head !== $this->head && $other->facing === $this->facing){
 			return $other;
 		}
 
