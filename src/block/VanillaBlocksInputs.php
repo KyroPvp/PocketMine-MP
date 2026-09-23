@@ -128,6 +128,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 		self::register("beacon", fn(BID $id) => new Beacon($id, "Beacon", new Info(new BreakInfo(3.0))), TileBeacon::class);
 		self::register("bed", fn(BID $id) => new Bed($id, "Bed Block", new Info(new BreakInfo(0.2))), TileBed::class);
 		self::register("bedrock", fn(BID $id) => new Bedrock($id, "Bedrock", new Info(BreakInfo::indestructible(18000000.0))));
+		self::register("straw_bed", fn(BID $id) => new StrawBed($id, "Straw Bed", new Info(new BlockBreakInfo(0.2, ToolType::HOE))));
 
 		self::register("beetroots", fn(BID $id) => new Beetroot($id, "Beetroot Block", new Info(BreakInfo::instant())));
 		self::register("bell", fn(BID $id) => new Bell($id, "Bell", new Info(BreakInfo::pickaxe(5.0))), TileBell::class);
@@ -1108,6 +1109,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 			WoodType::CHERRY => VanillaItems::CHERRY_SIGN(...),
 			WoodType::PALE_OAK => VanillaItems::PALE_OAK_SIGN(...),
 			WoodType::BAMBOO => VanillaItems::BAMBOO_SIGN(...),
+			WoodType::POPLAR => VanillaItems::POPLAR_SIGN(...)
 		};
 	}
 
@@ -1128,6 +1130,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 			WoodType::CHERRY => VanillaItems::CHERRY_HANGING_SIGN(...),
 			WoodType::PALE_OAK => VanillaItems::PALE_OAK_HANGING_SIGN(...),
 			WoodType::BAMBOO => VanillaItems::BAMBOO_HANGING_SIGN(...),
+			WoodType::POPLAR => VanillaItems::POPLAR_HANGING_SIGN(...)
 		};
 	}
 

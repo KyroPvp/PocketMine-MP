@@ -801,6 +801,7 @@ final class VanillaBlocks{
 	private static StonePressurePlate $_mSTONE_PRESSURE_PLATE;
 	private static Slab $_mSTONE_SLAB;
 	private static Stair $_mSTONE_STAIRS;
+	private static StrawBed $_mSTRAW_BED;
 	private static StructureVoid $_mSTRUCTURE_VOID;
 	private static Sugarcane $_mSUGARCANE;
 	private static DoublePlant $_mSUNFLOWER;
@@ -1654,6 +1655,7 @@ final class VanillaBlocks{
 			"stone_pressure_plate" => fn(StonePressurePlate $v) => self::$_mSTONE_PRESSURE_PLATE = $v,
 			"stone_slab" => fn(Slab $v) => self::$_mSTONE_SLAB = $v,
 			"stone_stairs" => fn(Stair $v) => self::$_mSTONE_STAIRS = $v,
+			"straw_bed" => fn(StrawBed $v) => self::$_mSTRAW_BED = $v,
 			"structure_void" => fn(StructureVoid $v) => self::$_mSTRUCTURE_VOID = $v,
 			"sugarcane" => fn(Sugarcane $v) => self::$_mSUGARCANE = $v,
 			"sunflower" => fn(DoublePlant $v) => self::$_mSUNFLOWER = $v,
@@ -5561,6 +5563,11 @@ final class VanillaBlocks{
 	public static function STONE_STAIRS() : Stair{
 		if(!isset(self::$_mSTONE_STAIRS)){ self::init(); }
 		return clone self::$_mSTONE_STAIRS;
+	}
+
+	public static function STRAW_BED() : StrawBed{
+		if(!isset(self::$_mSTRAW_BED)){ self::init(); }
+		return clone self::$_mSTRAW_BED;
 	}
 
 	public static function STRUCTURE_VOID() : StructureVoid{

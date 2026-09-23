@@ -58,7 +58,6 @@ enum WoodType
 	case PALE_OAK;
 	case POPLAR;
 	case BAMBOO;
-	case POPLAR;
 
 	public function getDisplayName() : string
 	{
