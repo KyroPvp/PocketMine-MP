@@ -26,7 +26,6 @@ namespace pocketmine\block;
 use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\HorizontalFacingTrait;
 use pocketmine\block\utils\SupportType;
-use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\item\Item;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\math\AxisAlignedBB;
@@ -162,12 +161,6 @@ abstract class BaseBed extends Transparent implements HorizontalFacing{
 	}
 
 	public function getMaxStackSize() : int{ return 1; }
-
-	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
-		$w->horizontalFacing($this->facing);
-		$w->bool($this->occupied);
-		$w->bool($this->head);
-	}
 
 	protected function recalculateCollisionBoxes() : array{
 		return [AxisAlignedBB::one()->trim(Facing::UP, 7 / 16)];
