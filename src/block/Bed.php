@@ -63,5 +63,10 @@ class Bed extends BaseBed implements Colored{
 		return $entity->getMotion()->y * -3 / 4; // 2/3 in Java, according to the wiki
 	}
 
+	public function onPlayerStopSleep() : void{
+		$this->setOccupied(false);
+		$this->getPosition()->getWorld()->setBlock($this->getPosition()->asVector3(), $this);
+	}
+
 	public function getMaxStackSize() : int{ return 1; }
 }

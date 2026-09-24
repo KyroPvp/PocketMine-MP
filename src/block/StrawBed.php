@@ -23,7 +23,33 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\item\Item;
+use pocketmine\world\sound\BlockBreakSound;
+
 class StrawBed extends BaseBed{
+
+	public function onPlayerStopSleep() : void{
+		$world = $this->getPosition()->getWorld();
+		$strawHalves = [];
+		$strawHalves[] = $this->getPosition();
+		$other = $this->getOtherHalf();
+		if($other !== null){
+			$strawHalves[] = $other->getPosition();
+		}
+		foreach($strawHalves as $pos){
+			$world->useBreakOn($pos);
+		}
+		$world->addSound($this->getPosition(), new BlockBreakSound($this));
+	}
+
+	public function getDrops(Item $item) : array{
+		return [];
+	}
+
+	public function canSetRespawn() : bool{
+		return false;
+	}
+
 	public function getMaxStackSize() : int{
 		return 16;
 	}

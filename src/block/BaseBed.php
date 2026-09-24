@@ -26,6 +26,7 @@ namespace pocketmine\block;
 use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\HorizontalFacingTrait;
 use pocketmine\block\utils\SupportType;
+use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\item\Item;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\math\AxisAlignedBB;
@@ -117,6 +118,13 @@ abstract class BaseBed extends Transparent implements HorizontalFacing{
 		return $this->head;
 	}
 
+	public function onPlayerStopSleep() : void{
+	}
+
+	public function canSetRespawn() : bool{
+		return true;
+	}
+
 	public function onNearbyBlockChange() : void{
 		if(!$this->head && ($other = $this->getOtherHalf()) !== null && $other->occupied !== $this->occupied){
 			$this->occupied = $other->occupied;
@@ -164,5 +172,11 @@ abstract class BaseBed extends Transparent implements HorizontalFacing{
 
 	protected function recalculateCollisionBoxes() : array{
 		return [AxisAlignedBB::one()->trim(Facing::UP, 7 / 16)];
+	}
+
+	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
+		$w->horizontalFacing($this->facing);
+		$w->bool($this->occupied);
+		$w->bool($this->head);
 	}
 }
