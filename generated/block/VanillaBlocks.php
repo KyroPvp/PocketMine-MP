@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use Closure;
-use LogicException;
 use pocketmine\utils\Utils;
 use function array_keys;
 use function count;
@@ -907,20 +905,20 @@ final class VanillaBlocks{
 	 * Hack to allow ignoring PHPStan wrong type assignment error in one place instead of hundreds or thousands
 	 * Assumes that the input value already matches the expected type. If not, a TypeError will be thrown on assignment.
 	 *
-	 * @phpstan-param Closure(never) : Block $closure
+	 * @phpstan-param \Closure(never) : Block $closure
 	 */
-	private static function unsafeAssign(Closure $closure, Block $memberValue) : void{
+	private static function unsafeAssign(\Closure $closure, Block $memberValue) : void{
 		/**
 		 * This type is not correct either (the param is actually a subtype of Block) but it's called
 		 * unsafeAssign for a reason :)
-		 * @phpstan-var Closure(Block) : Block $closure
+		 * @phpstan-var \Closure(Block) : Block $closure
 		 */
 		$closure($memberValue);
 	}
 
 	/**
-	 * @return Closure[]
-	 * @phpstan-return array<string, Closure(never) : Block>
+	 * @return \Closure[]
+	 * @phpstan-return array<string, \Closure(never) : Block>
 	 */
 	private static function getInitAssigners() : array{
 		return [
@@ -1781,17 +1779,17 @@ final class VanillaBlocks{
 		//This nasty mess of closures allows us to suppress PHPStan type assignment errors in one place instead of
 		//on every single assignment. This will only run one time on first init, so it's fine for performance.
 		if(self::$initialized){
-			throw new LogicException("Circular dependency detected - use RegistrySource->registerDelayed() if the circular dependency can't be avoided");
+			throw new \LogicException("Circular dependency detected - use RegistrySource->registerDelayed() if the circular dependency can't be avoided");
 		}
 		self::$initialized = true;
 		$assigners = self::getInitAssigners();
 		$assigned = [];
 		$source = new VanillaBlocksInputs();
 		foreach($source->getAllValues() as $name => $value){
-			$assigner = $assigners[$name] ?? throw new LogicException("Unexpected source registry member \"$name\" (code probably needs regenerating)");
+			$assigner = $assigners[$name] ?? throw new \LogicException("Unexpected source registry member \"$name\" (code probably needs regenerating)");
 			if(isset($assigned[$name])){
 				//this should be prevented by RegistrySource, but it doesn't hurt to have some redundancy
-				throw new LogicException("Repeated registry source member \"$name\"");
+				throw new \LogicException("Repeated registry source member \"$name\"");
 			}
 			self::$members[mb_strtoupper($name)] = $value;
 			$assigned[$name] = true;
@@ -1799,7 +1797,7 @@ final class VanillaBlocks{
 			self::unsafeAssign($assigner, $value);
 		}
 		if(count($assigners) > 0){
-			throw new LogicException("Missing values for registry members (code probably needs regenerating): " . implode(", ", array_keys($assigners)));
+			throw new \LogicException("Missing values for registry members (code probably needs regenerating): " . implode(", ", array_keys($assigners)));
 		}
 	}
 
@@ -2488,9 +2486,7 @@ final class VanillaBlocks{
 	}
 
 	public static function CHISELED_CINNABAR() : Opaque{
-		if(!isset(self::$_mCHISELED_CINNABAR)){
-			self::init();
-		}
+		if(!isset(self::$_mCHISELED_CINNABAR)){ self::init(); }
 		return clone self::$_mCHISELED_CINNABAR;
 	}
 
@@ -2540,9 +2536,7 @@ final class VanillaBlocks{
 	}
 
 	public static function CHISELED_SULFUR() : Opaque{
-		if(!isset(self::$_mCHISELED_SULFUR)){
-			self::init();
-		}
+		if(!isset(self::$_mCHISELED_SULFUR)){ self::init(); }
 		return clone self::$_mCHISELED_SULFUR;
 	}
 
@@ -2567,58 +2561,42 @@ final class VanillaBlocks{
 	}
 
 	public static function CINNABAR() : Opaque{
-		if(!isset(self::$_mCINNABAR)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR)){ self::init(); }
 		return clone self::$_mCINNABAR;
 	}
 
 	public static function CINNABAR_BRICKS() : Opaque{
-		if(!isset(self::$_mCINNABAR_BRICKS)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR_BRICKS)){ self::init(); }
 		return clone self::$_mCINNABAR_BRICKS;
 	}
 
 	public static function CINNABAR_BRICK_SLAB() : Slab{
-		if(!isset(self::$_mCINNABAR_BRICK_SLAB)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR_BRICK_SLAB)){ self::init(); }
 		return clone self::$_mCINNABAR_BRICK_SLAB;
 	}
 
 	public static function CINNABAR_BRICK_STAIRS() : Stair{
-		if(!isset(self::$_mCINNABAR_BRICK_STAIRS)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR_BRICK_STAIRS)){ self::init(); }
 		return clone self::$_mCINNABAR_BRICK_STAIRS;
 	}
 
 	public static function CINNABAR_BRICK_WALL() : Wall{
-		if(!isset(self::$_mCINNABAR_BRICK_WALL)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR_BRICK_WALL)){ self::init(); }
 		return clone self::$_mCINNABAR_BRICK_WALL;
 	}
 
 	public static function CINNABAR_SLAB() : Slab{
-		if(!isset(self::$_mCINNABAR_SLAB)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR_SLAB)){ self::init(); }
 		return clone self::$_mCINNABAR_SLAB;
 	}
 
 	public static function CINNABAR_STAIRS() : Stair{
-		if(!isset(self::$_mCINNABAR_STAIRS)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR_STAIRS)){ self::init(); }
 		return clone self::$_mCINNABAR_STAIRS;
 	}
 
 	public static function CINNABAR_WALL() : Wall{
-		if(!isset(self::$_mCINNABAR_WALL)){
-			self::init();
-		}
+		if(!isset(self::$_mCINNABAR_WALL)){ self::init(); }
 		return clone self::$_mCINNABAR_WALL;
 	}
 
@@ -2703,9 +2681,7 @@ final class VanillaBlocks{
 	}
 
 	public static function CONTINUOUS_POTENT_SULFUR() : ContinuousPotentSulfur{
-		if(!isset(self::$_mCONTINUOUS_POTENT_SULFUR)){
-			self::init();
-		}
+		if(!isset(self::$_mCONTINUOUS_POTENT_SULFUR)){ self::init(); }
 		return clone self::$_mCONTINUOUS_POTENT_SULFUR;
 	}
 
@@ -2945,9 +2921,7 @@ final class VanillaBlocks{
 	}
 
 	public static function CYCLING_POTENT_SULFUR() : CyclingPotentSulfur{
-		if(!isset(self::$_mCYCLING_POTENT_SULFUR)){
-			self::init();
-		}
+		if(!isset(self::$_mCYCLING_POTENT_SULFUR)){ self::init(); }
 		return clone self::$_mCYCLING_POTENT_SULFUR;
 	}
 
@@ -4927,30 +4901,22 @@ final class VanillaBlocks{
 	}
 
 	public static function POLISHED_CINNABAR() : Opaque{
-		if(!isset(self::$_mPOLISHED_CINNABAR)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_CINNABAR)){ self::init(); }
 		return clone self::$_mPOLISHED_CINNABAR;
 	}
 
 	public static function POLISHED_CINNABAR_SLAB() : Slab{
-		if(!isset(self::$_mPOLISHED_CINNABAR_SLAB)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_CINNABAR_SLAB)){ self::init(); }
 		return clone self::$_mPOLISHED_CINNABAR_SLAB;
 	}
 
 	public static function POLISHED_CINNABAR_STAIRS() : Stair{
-		if(!isset(self::$_mPOLISHED_CINNABAR_STAIRS)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_CINNABAR_STAIRS)){ self::init(); }
 		return clone self::$_mPOLISHED_CINNABAR_STAIRS;
 	}
 
 	public static function POLISHED_CINNABAR_WALL() : Wall{
-		if(!isset(self::$_mPOLISHED_CINNABAR_WALL)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_CINNABAR_WALL)){ self::init(); }
 		return clone self::$_mPOLISHED_CINNABAR_WALL;
 	}
 
@@ -5005,30 +4971,22 @@ final class VanillaBlocks{
 	}
 
 	public static function POLISHED_SULFUR() : Opaque{
-		if(!isset(self::$_mPOLISHED_SULFUR)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_SULFUR)){ self::init(); }
 		return clone self::$_mPOLISHED_SULFUR;
 	}
 
 	public static function POLISHED_SULFUR_SLAB() : Slab{
-		if(!isset(self::$_mPOLISHED_SULFUR_SLAB)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_SULFUR_SLAB)){ self::init(); }
 		return clone self::$_mPOLISHED_SULFUR_SLAB;
 	}
 
 	public static function POLISHED_SULFUR_STAIRS() : Stair{
-		if(!isset(self::$_mPOLISHED_SULFUR_STAIRS)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_SULFUR_STAIRS)){ self::init(); }
 		return clone self::$_mPOLISHED_SULFUR_STAIRS;
 	}
 
 	public static function POLISHED_SULFUR_WALL() : Wall{
-		if(!isset(self::$_mPOLISHED_SULFUR_WALL)){
-			self::init();
-		}
+		if(!isset(self::$_mPOLISHED_SULFUR_WALL)){ self::init(); }
 		return clone self::$_mPOLISHED_SULFUR_WALL;
 	}
 
@@ -5143,9 +5101,7 @@ final class VanillaBlocks{
 	}
 
 	public static function POTENT_SULFUR() : PotentSulfur{
-		if(!isset(self::$_mPOTENT_SULFUR)){
-			self::init();
-		}
+		if(!isset(self::$_mPOTENT_SULFUR)){ self::init(); }
 		return clone self::$_mPOTENT_SULFUR;
 	}
 
@@ -5790,58 +5746,42 @@ final class VanillaBlocks{
 	}
 
 	public static function SULFUR() : Opaque{
-		if(!isset(self::$_mSULFUR)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR)){ self::init(); }
 		return clone self::$_mSULFUR;
 	}
 
 	public static function SULFUR_BRICKS() : Opaque{
-		if(!isset(self::$_mSULFUR_BRICKS)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR_BRICKS)){ self::init(); }
 		return clone self::$_mSULFUR_BRICKS;
 	}
 
 	public static function SULFUR_BRICK_SLAB() : Slab{
-		if(!isset(self::$_mSULFUR_BRICK_SLAB)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR_BRICK_SLAB)){ self::init(); }
 		return clone self::$_mSULFUR_BRICK_SLAB;
 	}
 
 	public static function SULFUR_BRICK_STAIRS() : Stair{
-		if(!isset(self::$_mSULFUR_BRICK_STAIRS)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR_BRICK_STAIRS)){ self::init(); }
 		return clone self::$_mSULFUR_BRICK_STAIRS;
 	}
 
 	public static function SULFUR_BRICK_WALL() : Wall{
-		if(!isset(self::$_mSULFUR_BRICK_WALL)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR_BRICK_WALL)){ self::init(); }
 		return clone self::$_mSULFUR_BRICK_WALL;
 	}
 
 	public static function SULFUR_SLAB() : Slab{
-		if(!isset(self::$_mSULFUR_SLAB)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR_SLAB)){ self::init(); }
 		return clone self::$_mSULFUR_SLAB;
 	}
 
 	public static function SULFUR_STAIRS() : Stair{
-		if(!isset(self::$_mSULFUR_STAIRS)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR_STAIRS)){ self::init(); }
 		return clone self::$_mSULFUR_STAIRS;
 	}
 
 	public static function SULFUR_WALL() : Wall{
-		if(!isset(self::$_mSULFUR_WALL)){
-			self::init();
-		}
+		if(!isset(self::$_mSULFUR_WALL)){ self::init(); }
 		return clone self::$_mSULFUR_WALL;
 	}
 
@@ -6091,9 +6031,7 @@ final class VanillaBlocks{
 	}
 
 	public static function WET_POTENT_SULFUR() : WetPotentSulfur{
-		if(!isset(self::$_mWET_POTENT_SULFUR)){
-			self::init();
-		}
+		if(!isset(self::$_mWET_POTENT_SULFUR)){ self::init(); }
 		return clone self::$_mWET_POTENT_SULFUR;
 	}
 
